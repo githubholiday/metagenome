@@ -1,0 +1,6 @@
+[template]
+SAMPLE=6
+
+[shell]
+PYTHON3=python3
+PANDOC=pandoc

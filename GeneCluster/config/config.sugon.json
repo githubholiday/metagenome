@@ -1,0 +1,57 @@
+{
+    "module": {
+        "GeneCluster": {
+            "database": {},
+            "environment": {
+                "memory": "3 GB",
+                "sge_queue": "xahcnormal",
+                "docker": "registry-vpc.cn-beijing.aliyuncs.com/annoroad/conda_perl_r:v0.5",
+                "cpu": "1",
+                "machine": "OnDemand bcs.es.c.large img-ubuntu-vpc"
+            },
+            "software": {
+                "GetSize_Py": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/get_size/get_source.py",
+                "Merge_Py": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/merge_tables.py",
+                "READLOG": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/readlog",
+                "MakeFinishTag": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/make_finish_tag",
+                "AS_MAP": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/as_map",
+                "COMBINE_ARRAY": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/combine_array",
+                "SELECT_SOME": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/select_some",
+                "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
+                "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/"
+            },
+            "parameter": {
+                "def_filesize": "1",
+                "express": "y/x,y/x",
+                "def_resource": "2,4",
+                "max_resource": "6,10",
+                "examples": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/image_example.png",
+                "readme": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/readme.doc"
+            }
+        },
+        "report": {
+            "database": {},
+            "environment": {
+                "memory": "3 GB",
+                "sge_queue": "xahcnormal",
+                "docker": "registry-vpc.cn-beijing.aliyuncs.com/annoroad/md_report:v0.1",
+                "cpu": "1",
+                "machine": "OnDemand bcs.es.c.large img-ubuntu-vpc"
+            },
+            "software": {
+                "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
+                "BIN": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/report/",
+                "READLOG": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/readlog"
+            },
+            "parameter": {
+                "template_md": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/template.md",
+                "input_json": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/input.json",
+                "table_software": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/table_software.xls",
+                "tools_dir": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/tools",
+                "report_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/config/report.sugon.config",
+                "qc_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/report/qc_config.json",
+                "platform": "sugon"
+            }
+        }
+    }
+}
