@@ -18,7 +18,11 @@
                 "COMBINE_ARRAY": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/combine_array",
                 "SELECT_SOME": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/select_some",
                 "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
-                "script": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/"
+                "script": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/",
+		"SEQKIT":"/work/home/tuchengfang/miniconda3/bin/seqkit",
+		"MGM":"/work/home/tuchengfang/MetaGeneMark_linux_64/mgm/",
+		"gmhmmp_parematers":"-r -a -d -f G",
+		"mod":"/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/config/MetaGeneMark_v1.mod"
             },
             "parameter": {
                 "def_filesize": "1",
