@@ -30,7 +30,7 @@ task GenePredictionTask{
 		if [ "$job_state" != "FINISH" ];then
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
-			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
+			
             make -f ~{script}/GenePrediction.mk user=~{user} MGM=~{MGM} gmhmmp_parematers=~{gmhmmp_parematers} pro_fa=~{pro_fa} dna_fa=~{dna_fa} out_gff=~{out_gff} assemble_fa=~{assemble_fa} mod=~{mod} GenePrediction
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			echo "###### task1 ends at $(date)"
