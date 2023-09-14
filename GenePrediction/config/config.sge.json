@@ -10,22 +10,22 @@
                 "machine": "OnDemand bcs.es.c.large img-ubuntu-vpc"
             },
             "software": {
-                "GetSize_Py": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/get_size/get_source.py",
-                "Merge_Py": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/merge_tables.py",
-                "READLOG": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/readlog",
-                "MakeFinishTag": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/make_finish_tag",
-                "AS_MAP": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/as_map",
-                "COMBINE_ARRAY": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/combine_array",
-                "SELECT_SOME": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/select_some",
+                "GetSize_Py": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/get_size/get_source.py",
+                "Merge_Py": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/merge_tables.py",
+                "READLOG": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/readlog",
+                "MakeFinishTag": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/make_finish_tag",
+                "AS_MAP": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/as_map",
+                "COMBINE_ARRAY": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/combine_array",
+                "SELECT_SOME": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/select_some",
                 "PYTHON3": "/annoroad/share/software/install/Python-3.3.2/bin/python3",
-                "script": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/"
+                "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/"
             },
             "parameter": {
                 "def_filesize": "1",
                 "express": "y/x,y/x",
                 "def_resource": "2,4",
                 "max_resource": "6,10",
-                "readme": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/readme.doc"
+                "readme": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/readme.doc"
             }
         },
         "report": {
@@ -39,16 +39,16 @@
             },
             "software": {
                 "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
-                "BIN": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/report/",
-                "READLOG": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/script/common/tools/readlog"
+                "BIN": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/report/",
+                "READLOG": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/script/common/tools/readlog"
             },
             "parameter": {
-                "template_md": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/template.md",
-                "input_json": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/input.json",
-                "table_software": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/table_software.xls",
-                "tools_dir": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/tools",
-                "report_config": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/config/report.sugon.config",
-                "qc_config": "/work/share/acdgo9idhi/tuchengfang/metagenome/GenePrediction/report/qc_config.json",
+                "template_md": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/template.md",
+                "input_json": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/input.json",
+                "table_software": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/table_software.xls",
+                "tools_dir": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/tools",
+                "report_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/config/report.sugon.config",
+                "qc_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GenePrediction/report/qc_config.json",
                 "platform": "sugon"
             }
         }

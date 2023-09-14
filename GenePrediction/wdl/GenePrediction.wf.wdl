@@ -7,12 +7,17 @@ import "tasks/common/mergetable.task.wdl" as merge_t
 import "tasks/common/get_size.task.wdl" as getsize_t
 import "tasks/common/make_tag.wdl" as make_tag
 import "tasks/common/mytools.wdl" as mytools
-import "tasks/task_example.wdl" as task_example
+import "tasks/gene_prediction_task.wdl" as GenePredictionTask
 workflow GenePrediction{
 	input{
-		Array[String] bams
-		Array[String] samples
+		String user
+        Array[String] samples
+        Array[File] assemble_fas
+        Array[File] pro_fas
+        Array[File] dna_fas
+        Array[String] out_gffs
 
+        Int gene_min_len = 200
 		String report_json
 		File config_json
 		String mount
@@ -42,12 +47,20 @@ workflow GenePrediction{
 	### 根据实际情况，添加task name
 	String logfile = logdir + "/Module.run.log.sql"
 
-	scatter (i in range(length(bams))){
+	scatter (i in range(length(samples))){
 		### 请注意 step1_name_的最后一个下划线，作为连字符
-		String scatter_name = "step1_name_" + samples[i]
-		call task_example.task1  as step1_name   { 
+		String scatter_name = "gene_prediction_task" + samples[i]
+		call GenePredictionTask.GenePredictionTask  as gene_prediction_task   { 
 			input:
-				infile = bams[i],
+				assemble_fa = assemble_fa[i],
+                pro_fa = pro_fas[i],
+                dna_fa = dna_fas[i],
+                out_gff = out_gffs[i],
+                user = user,
+                script = config.software["script"],
+                mod = config.software["mod"],
+                MGM = config.software["MGM"],
+                gmhmmp_parematers = config.software["gmhmmp_parematers"],
 
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
@@ -64,39 +77,57 @@ workflow GenePrediction{
 				memory = config.environment["memory"],
 				machine = config.environment["machine"],
 		}
-	}
+        call GenePredictionTask.GeneFilterTask  as gene_filter_task   { 
+			input:
+				sample = samples[i],
+                dna_fa = gene_prediction_task.dna_fa,
+                gene_min_len = gene_min_len,
+                
+                script = config.software["script"],
+                SEQKIT = config.software["SEQKIT"],
+                PYTHON3 = config.software["PYTHON3"],
+				MakeFinishTag = config.software["MakeFinishTag"],
+				READLOG = config.software["READLOG"],
 
-	call merge_t.merge_table as merge_table {
-		input:
-			## 修改以下三个
-			inputs = step1_name.output,
-			step_name = "merge_table",
-			prefix = "step1_name",
+				finish_tag = all_finish_tag ,
+				step_name = scatter_name,
+				outdir = outdir,
+				logfile = logfile,
 
-			finish_tag = all_finish_tag ,
-			column=false,
-			outdir=outdir,
-			READLOG = config.software["READLOG"],
-			MakeFinishTag = config.software["MakeFinishTag"],
-			logfile = logfile,
-
-			PYTHON3=config.software["PYTHON3"],
-			Merge_Py=config.software["Merge_Py"],
-			mount = mount,
-			machine = config.environment["machine"],
-			docker = config.environment["docker"],
-			sge_queue = config.environment["sge_queue"],
-			cpu = config.environment["cpu"],
-			memory = config.environment["memory"]
+				mount = mount,
+				cpu = config.environment["cpu"],
+				docker = config.environment["docker"],
+				sge_queue = config.environment["sge_queue"],
+				memory = config.environment["memory"],
+				machine = config.environment["machine"],
+		}
+        call merge_t.merge_table as merge_table {
+            input:
+                inputs = gene_filter_task.stat,
+                prefix = "ORF.stat",
+                column=false,
+                step_name = "merge_table",
+                make_finish_tag = config.software["MakeFinishTag"],
+                logfile = logfile,
+                outdir=outdir,
+                PYTHON3=config.software["PYTHON3"],
+                Merge_Py=config.software["Merge_Py"],
+                mount = mount,
+                machine = config.environment["machine"],
+                docker = config.environment["docker"],
+                sge_queue = config.environment["sge_queue"],
+                cpu = config.environment["cpu"],
+                memory = config.environment["memory"]
+        }
 	}
 
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [[merge_table.cmbfile] , step1_name.output2, step1_name.output, [config.parameter["readme"]] , [config.parameter["examples"]], step1_name.intermediate_files]
+	Array[Array[String]] upload_f = [gene_prediction_task.pro_fa ,gene_prediction_task.dna_fa, gene_prediction_task.gff, gene_filter_task.out_fa,[merge_table.cmbfile] ]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
-	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix,upload_dir_suffix ,upload_dir_suffix, upload_tools_suffix , key_process_dir_suffix ]
+	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix,upload_dir_suffix ,upload_dir_suffix,upload_tools_suffix ]
 
 	
 	if (defined(workid) && defined(reportdir)) {
@@ -150,24 +181,72 @@ workflow GenePrediction{
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
 	parameter_meta{
-		bams:{
-			description: "输入bam列表", 
-			required: "true" , 
-			category:"input",
-			type:"Array[String]",
-			optional:"",
-			default:"" ,
-			suffix:"bam"
-		}
 		samples:{
-			description: "输入样品名列表", 
+			description: "样本名称，主要用于识别任务执行情况", 
 			required: "true" , 
 			category:"input",
 			type:"Array[String]",
 			optional:"",
 			default:"" ,
-			suffix:"bam"
-		}		
+			suffix:""
+		}
+		assemble_fas:{
+			description: "fa文件列表", 
+			required: "true" , 
+			category:"input",
+			type:"Array[File]",
+			optional:"",
+			default:"" ,
+			suffix:"fa"
+		}	
+        user:{
+            description: "用户名称",
+            required: "true" ,
+            category:"input",
+			type:"String",
+			optional:"",
+			default:"" ,
+			suffix:""
+		}
+        gene_min_len:{
+            description: "基因最小长度",
+            required: "true" ,
+            category:"input",
+            type:"Int",
+			optional:"",
+			default:"200" ,
+			suffix:""
+		}
+
+        pro_fas:{
+			description: "基因预测输出的蛋白fa文件列表", 
+			required: "true" , 
+			category:"output",
+			type:"Array[File]",
+			optional:"",
+			default:"" ,
+			suffix:"fa"
+		}
+        dna_fas:{
+			description: "基因预测输出的基因的fa文件列表", 
+			required: "true" , 
+			category:"output",
+			type:"Array[File]",
+			optional:"",
+			default:"" ,
+			suffix:"fa"
+		}
+        out_gffs:{
+            description: "基因预测输出的gff文件列表", 
+            required: "true" , 
+            category:"output",
+            type:"Array[String]",
+            optional:"",
+            default:"" ,
+            suffix:"gff"
+        }
+
+
 		config_json:{
 			description: "默认参数，配置文件，config/config.sge.json", 
 			required: "true" , 
@@ -175,11 +254,6 @@ workflow GenePrediction{
 		}
 		mount:{
 			description: "可选参数，挂载路径，云平台用", 
-			required: "true" , 
-			category:"input"
-		}
-		outdir:{
-			description: "必选参数，结果路径", 
 			required: "true" , 
 			category:"input"
 		}
@@ -239,11 +313,11 @@ workflow GenePrediction{
 
 	}
 	meta{
-		author:""
-		name:""
-		version:"v1.0.1"
-		mail:"@genome.cn"
+		author:"HolidayT"
+		name:"基因预测以及长度过滤"
+		version:"v1.0.0"
+		mail:"chengfang@genome.cn"
 		description:""
-		software:"s1,s2,s3,s4,s5"
+		software:"PYTHON3,MetaGeneMark_linux_64,SEQKIT"
 	}
 }
