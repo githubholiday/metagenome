@@ -8,6 +8,7 @@ import "tasks/common/get_size.task.wdl" as getsize_t
 import "tasks/common/make_tag.wdl" as make_tag
 import "tasks/common/mytools.wdl" as mytools
 import "tasks/gene_prediction_task.wdl" as GenePredictionTask
+import "tasks/gene_prediction_task.wdl" as GeneFilterTask
 workflow GenePrediction{
 	input{
 		String user
