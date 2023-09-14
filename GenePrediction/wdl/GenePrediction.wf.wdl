@@ -55,7 +55,6 @@ workflow GenePrediction{
 				script = config.software["script"],
 				mod = config.software["mod"],
 				MGM = config.software["MGM"],
-				gmhmmp_parematers = config.software["gmhmmp_parematers"],
 
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
