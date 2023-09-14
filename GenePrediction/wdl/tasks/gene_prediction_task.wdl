@@ -65,16 +65,6 @@ task GeneFilterTask{
 		String READLOG
 		String finish_tag = "UNFINISH"  ## 必须有这个tag
 		String step_name 
-		String mod
-		String user
-        String MGM
-        String gmhmmp_parematers
-		String logfile
-        File pro_fa
-        File dna_fa
-        String out_gff
-        File assemble_fa
-        String script
 		String mount
 		Int cpu
 		String docker
