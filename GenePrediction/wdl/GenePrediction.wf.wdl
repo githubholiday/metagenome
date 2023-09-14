@@ -100,25 +100,26 @@ workflow GenePrediction{
 				memory = config.environment["memory"],
 				machine = config.environment["machine"],
 		}
-        call merge_t.merge_table as merge_table {
-            input:
-                inputs = gene_filter_task.stat,
-                prefix = "ORF.stat",
-                column=false,
-                step_name = "merge_table",
-                make_finish_tag = config.software["MakeFinishTag"],
-                logfile = logfile,
-                outdir=outdir,
-                PYTHON3=config.software["PYTHON3"],
-                Merge_Py=config.software["Merge_Py"],
-                mount = mount,
-                machine = config.environment["machine"],
-                docker = config.environment["docker"],
-                sge_queue = config.environment["sge_queue"],
-                cpu = config.environment["cpu"],
-                memory = config.environment["memory"]
-        }
-	}
+    }
+    call merge_t.merge_table as merge_table {
+        input:
+            inputs = gene_filter_task.stat,
+            prefix = "ORF.stat",
+            column=false,
+            step_name = "merge_table",
+            make_finish_tag = config.software["MakeFinishTag"],
+            logfile = logfile,
+            outdir=outdir,
+            PYTHON3=config.software["PYTHON3"],
+            Merge_Py=config.software["Merge_Py"],
+            mount = mount,
+            machine = config.environment["machine"],
+            docker = config.environment["docker"],
+            sge_queue = config.environment["sge_queue"],
+            cpu = config.environment["cpu"],
+            memory = config.environment["memory"]
+    }
+
 
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
