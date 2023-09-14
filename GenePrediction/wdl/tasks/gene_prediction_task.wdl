@@ -46,8 +46,8 @@ task GenePredictionTask{
 	}
 	output{
 		## 由于output是保留字，因此输出名不能output
-		File dna_fa = "~{dna_fa}"
-        File pro_fa = "~{pro_fa}"
+		File dna_fa_out = "~{dna_fa}"
+        File pro_fa_out = "~{pro_fa}"
         File gff = "~{out_gff}"
 	}
 } 
