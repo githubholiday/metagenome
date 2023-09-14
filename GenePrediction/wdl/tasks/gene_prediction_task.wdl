@@ -81,6 +81,7 @@ task GeneFilterTask{
 			## command starts at here , 首先清理目录
 			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
             make -f ~{script}/GenePrediction.mk dna_fa=~{dna_fa} gene_min_len=~{gene_min_len} sample=~{sample} outdir=~{outdir} GeneFilter
+            make -f ~{script}/GenePrediction.mk dna_fa=~{outdir}/~{sample}.nucleotide.filter.fa pro_fa=~{outdir}/~{sample}.pro.filter.fa Cds2aa
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			echo "###### task1 ends at $(date)"
 		fi
@@ -97,6 +98,7 @@ task GeneFilterTask{
 		## 由于output是保留字，因此输出名不能output
 		File stat = "~{outdir}/~{sample}.orf_stat.xls"
         File outfa = "~{outdir}/~{sample}.nucleotide.filter.fa"
+        File outfa_pro = "~{outdir}/~{sample}.pro.filter.fa"
 	}
 } 
 

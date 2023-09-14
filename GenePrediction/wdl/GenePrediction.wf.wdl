@@ -123,10 +123,10 @@ workflow GenePrediction{
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [gene_prediction_task.pro_fa_out ,gene_prediction_task.dna_fa_out, gene_prediction_task.gff, gene_filter_task.outfa,[merge_table.cmbfile] ]
+	Array[Array[String]] upload_f = [gene_prediction_task.pro_fa_out ,gene_prediction_task.dna_fa_out, gene_prediction_task.gff, gene_filter_task.outfa,gene_filter_task.outfa_pro,[merge_table.cmbfile] ]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
-	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix,upload_dir_suffix ,upload_dir_suffix,upload_tools_suffix ]
+	Array[String] upload_p =[key_process_dir_suffix,key_process_dir_suffix,upload_dir_suffix ,upload_dir_suffix,upload_tools_suffix,upload_tools_suffix ]
 
 	
 	if (defined(workid) && defined(reportdir)) {
@@ -174,6 +174,8 @@ workflow GenePrediction{
 		Array[String] upload_place = upload_p
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
+        Array[File] dna_fa = gene_filter_task.outfa
+        Array[File] pro_fa = gene_filter_task.outfa_pro
 
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
