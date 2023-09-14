@@ -29,7 +29,7 @@ task GenePredictionTask{
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
 			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
-			make -f ~{script}/GenePrediction.mk user=~{user} MGM=~{MGM} pro_fa=~{outdir}/~{sample}/~{sample}.pro.fa dna_fa==~{outdir}/~{sample}/~{sample}.dna.fa out_gff==~{outdir}/~{sample}/~{sample}.gff assemble_fa=~{assemble_fa} mod=~{mod} GenePrediction
+			make -f ~{script}/genePrediction.mk user=~{user} MGM=~{MGM} pro_fa=~{outdir}/~{sample}/~{sample}.pro.fa dna_fa==~{outdir}/~{sample}/~{sample}.dna.fa out_gff==~{outdir}/~{sample}/~{sample}.gff assemble_fa=~{assemble_fa} mod=~{mod} GenePrediction
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			echo "###### task1 ends at $(date)"
 		fi
@@ -78,8 +78,8 @@ task GeneFilterTask{
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
 			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
-			make -f ~{script}/GenePrediction.mk dna_fa=~{dna_fa} gene_min_len=~{gene_min_len} sample=~{sample} outdir=~{outdir} GeneFilter
-			make -f ~{script}/GenePrediction.mk dna_fa=~{outdir}/~{sample}.nucleotide.filter.fa pro_fa=~{outdir}/~{sample}.pro.filter.fa Cds2aa
+			make -f ~{script}/genePrediction.mk dna_fa=~{dna_fa} gene_min_len=~{gene_min_len} sample=~{sample} outdir=~{outdir} GeneFilter
+			make -f ~{script}/genePrediction.mk dna_fa=~{outdir}/~{sample}.nucleotide.filter.fa pro_fa=~{outdir}/~{sample}.pro.filter.fa Cds2aa
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			echo "###### task1 ends at $(date)"
 		fi
