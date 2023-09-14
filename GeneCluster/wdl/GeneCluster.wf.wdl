@@ -176,11 +176,6 @@ workflow GeneCluster{
 			required: "true" , 
 			category:"input"
 		}
-		outdir:{
-			description: "必选参数，结果路径", 
-			required: "true" , 
-			category:"input"
-		}
 		logdir: {
 			description: "必选参数，日志路径", 
 			required: "true" , 
