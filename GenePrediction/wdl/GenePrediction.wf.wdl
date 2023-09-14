@@ -13,10 +13,6 @@ workflow GenePrediction{
 		String user
 		Array[String] samples
 		Array[File] assemble_fas
-		Array[File] pro_fas
-		Array[File] dna_fas
-		Array[String] out_gffs
-
 		Int gene_min_len = 200
 		String report_json
 		File config_json
@@ -53,9 +49,8 @@ workflow GenePrediction{
 		call gene_prediction_t.GenePredictionTask  as gene_prediction_task   { 
 			input:
 				assemble_fa = assemble_fas[i],
-				pro_fa = pro_fas[i],
-				dna_fa = dna_fas[i],
-				out_gff = out_gffs[i],
+                sample = samples[i],
+                outdir=outdir,
 				user = user,
 				script = config.software["script"],
 				mod = config.software["mod"],
