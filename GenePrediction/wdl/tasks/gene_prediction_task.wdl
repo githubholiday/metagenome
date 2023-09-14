@@ -59,7 +59,7 @@ task GeneFilterTask{
         String script
         String sample
         String outdir
-        String dna_fa
+        File dna_fa
         Int gene_min_len
 		String MakeFinishTag
 		String READLOG
