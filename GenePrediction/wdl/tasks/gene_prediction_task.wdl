@@ -64,6 +64,7 @@ task GeneFilterTask{
 		String MakeFinishTag
 		String READLOG
 		String finish_tag = "UNFINISH"  ## 必须有这个tag
+        String logfile
 		String step_name 
 		String mount
 		Int cpu
