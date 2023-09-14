@@ -107,7 +107,7 @@ workflow GenePrediction{
             prefix = "ORF.stat",
             column=false,
             step_name = "merge_table",
-            make_finish_tag = config.software["MakeFinishTag"],
+            MakeFinishTag = config.software["MakeFinishTag"],
             logfile = logfile,
             outdir=outdir,
             PYTHON3=config.software["PYTHON3"],
