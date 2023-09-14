@@ -66,7 +66,7 @@ workflow GeneCluster{
 			sge_queue = config.environment["sge_queue"],
 			memory = config.environment["memory"],
 			machine = config.environment["machine"],
-		}
+	}
 
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
