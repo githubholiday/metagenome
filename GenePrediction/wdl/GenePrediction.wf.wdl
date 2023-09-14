@@ -7,8 +7,7 @@ import "tasks/common/mergetable.task.wdl" as merge_t
 import "tasks/common/get_size.task.wdl" as getsize_t
 import "tasks/common/make_tag.wdl" as make_tag
 import "tasks/common/mytools.wdl" as mytools
-import "tasks/gene_prediction_task.wdl" as GenePredictionTask
-import "tasks/gene_prediction_task.wdl" as GeneFilterTask
+import "tasks/gene_prediction_task.wdl" as GenePrediction
 workflow GenePrediction{
 	input{
 		String user
@@ -51,7 +50,7 @@ workflow GenePrediction{
 	scatter (i in range(length(samples))){
 		### 请注意 step1_name_的最后一个下划线，作为连字符
 		String scatter_name = "gene_prediction_task" + samples[i]
-		call GenePredictionTask.GenePredictionTask  as gene_prediction_task   { 
+		call GenePrediction.GenePredictionTask  as gene_prediction_task   { 
 			input:
 				assemble_fa = assemble_fas[i],
                 pro_fa = pro_fas[i],
@@ -77,7 +76,7 @@ workflow GenePrediction{
 				memory = config.environment["memory"],
 				machine = config.environment["machine"],
 		}
-        call GenePredictionTask.GeneFilterTask  as gene_filter_task   { 
+        call GenePrediction.GeneFilterTask  as gene_filter_task   { 
 			input:
 				sample = samples[i],
                 dna_fa = gene_prediction_task.dna_fa_out,
