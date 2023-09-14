@@ -11,13 +11,13 @@ import "tasks/gene_prediction_task.wdl" as gene_prediction_t
 workflow GenePrediction{
 	input{
 		String user
-        Array[String] samples
-        Array[File] assemble_fas
-        Array[File] pro_fas
-        Array[File] dna_fas
-        Array[String] out_gffs
+		Array[String] samples
+		Array[File] assemble_fas
+		Array[File] pro_fas
+		Array[File] dna_fas
+		Array[String] out_gffs
 
-        Int gene_min_len = 200
+		Int gene_min_len = 200
 		String report_json
 		File config_json
 		String mount
@@ -53,14 +53,14 @@ workflow GenePrediction{
 		call gene_prediction_t.GenePredictionTask  as gene_prediction_task   { 
 			input:
 				assemble_fa = assemble_fas[i],
-                pro_fa = pro_fas[i],
-                dna_fa = dna_fas[i],
-                out_gff = out_gffs[i],
-                user = user,
-                script = config.software["script"],
-                mod = config.software["mod"],
-                MGM = config.software["MGM"],
-                gmhmmp_parematers = config.software["gmhmmp_parematers"],
+				pro_fa = pro_fas[i],
+				dna_fa = dna_fas[i],
+				out_gff = out_gffs[i],
+				user = user,
+				script = config.software["script"],
+				mod = config.software["mod"],
+				MGM = config.software["MGM"],
+				gmhmmp_parematers = config.software["gmhmmp_parematers"],
 
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
@@ -76,15 +76,15 @@ workflow GenePrediction{
 				memory = config.environment["memory"],
 				machine = config.environment["machine"],
 		}
-        call gene_prediction_t.GeneFilterTask  as gene_filter_task   { 
+		call gene_prediction_t.GeneFilterTask  as gene_filter_task   { 
 			input:
 				sample = samples[i],
-                dna_fa = gene_prediction_task.dna_fa_out,
-                gene_min_len = gene_min_len,
-                
-                script = config.software["script"],
-                SEQKIT = config.software["SEQKIT"],
-                PYTHON3 = config.software["PYTHON3"],
+				dna_fa = gene_prediction_task.dna_fa_out,
+				gene_min_len = gene_min_len,
+				
+				script = config.software["script"],
+				SEQKIT = config.software["SEQKIT"],
+				PYTHON3 = config.software["PYTHON3"],
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
 
@@ -100,25 +100,25 @@ workflow GenePrediction{
 				memory = config.environment["memory"],
 				machine = config.environment["machine"],
 		}
-    }
-    call merge_t.merge_table as merge_table {
-        input:
-            inputs = gene_filter_task.stat,
-            prefix = "ORF.stat",
-            column=false,
-            step_name = "merge_table",
-            MakeFinishTag = config.software["MakeFinishTag"],
-            logfile = logfile,
-            outdir=outdir,
-            PYTHON3=config.software["PYTHON3"],
-            Merge_Py=config.software["Merge_Py"],
-            mount = mount,
-            machine = config.environment["machine"],
-            docker = config.environment["docker"],
-            sge_queue = config.environment["sge_queue"],
-            cpu = config.environment["cpu"],
-            memory = config.environment["memory"]
-    }
+	}
+	call merge_t.merge_table as merge_table {
+		input:
+			inputs = gene_filter_task.stat,
+			prefix = "ORF.stat",
+			column=false,
+			step_name = "merge_table",
+			MakeFinishTag = config.software["MakeFinishTag"],
+			logfile = logfile,
+			outdir=outdir,
+			PYTHON3=config.software["PYTHON3"],
+			Merge_Py=config.software["Merge_Py"],
+			mount = mount,
+			machine = config.environment["machine"],
+			docker = config.environment["docker"],
+			sge_queue = config.environment["sge_queue"],
+			cpu = config.environment["cpu"],
+			memory = config.environment["memory"]
+	}
 
 
 	## 最终结果目录的readme，必须要添加
@@ -132,11 +132,11 @@ workflow GenePrediction{
 	
 	if (defined(workid) && defined(reportdir)) {
 		call report_t.oss_report as report{
-            input:
+			input:
 			## 可调参数
-			workid = workid,          ## 项目编号
-			reportdir = reportdir,    ## 报告存放路径
-			project_name = project_name,     ## 报告名称
+			workid = workid,		  ## 项目编号
+			reportdir = reportdir,	## 报告存放路径
+			project_name = project_name,	 ## 报告名称
 			report_json = report_json,
 			
 			## 配置参数不用调整
@@ -154,10 +154,10 @@ workflow GenePrediction{
 	
 	if (defined(workid) && defined(qc_dir)) {
 		call qc_t.check as qc_check{
-            input:
+			input:
 			## 可调参数
-			qc_dir = qc_dir,    ## 报告存放路径
-			project_name = project_name,     ## 报告名称
+			qc_dir = qc_dir,	## 报告存放路径
+			project_name = project_name,	 ## 报告名称
 			workid = workid, 
 
 			## 配置参数不用调整
@@ -175,8 +175,8 @@ workflow GenePrediction{
 		Array[String] upload_place = upload_p
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
-        Array[File] dna_fa = gene_filter_task.outfa
-        Array[File] pro_fa = gene_filter_task.outfa_pro
+		Array[File] dna_fa = gene_filter_task.outfa
+		Array[File] pro_fa = gene_filter_task.outfa_pro
 
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
@@ -199,26 +199,26 @@ workflow GenePrediction{
 			default:"" ,
 			suffix:"fa"
 		}	
-        user:{
-            description: "用户名称",
-            required: "true" ,
-            category:"input",
+		user:{
+			description: "用户名称",
+			required: "true" ,
+			category:"input",
 			type:"String",
 			optional:"",
 			default:"" ,
 			suffix:""
 		}
-        gene_min_len:{
-            description: "基因最小长度",
-            required: "true" ,
-            category:"input",
-            type:"Int",
+		gene_min_len:{
+			description: "基因最小长度",
+			required: "true" ,
+			category:"input",
+			type:"Int",
 			optional:"",
 			default:"200" ,
 			suffix:""
 		}
 
-        pro_fas:{
+		pro_fas:{
 			description: "基因预测输出的蛋白fa文件列表", 
 			required: "true" , 
 			category:"output",
@@ -227,7 +227,7 @@ workflow GenePrediction{
 			default:"" ,
 			suffix:"fa"
 		}
-        dna_fas:{
+		dna_fas:{
 			description: "基因预测输出的基因的fa文件列表", 
 			required: "true" , 
 			category:"output",
@@ -236,15 +236,15 @@ workflow GenePrediction{
 			default:"" ,
 			suffix:"fa"
 		}
-        out_gffs:{
-            description: "基因预测输出的gff文件列表", 
-            required: "true" , 
-            category:"output",
-            type:"Array[String]",
-            optional:"",
-            default:"" ,
-            suffix:"gff"
-        }
+		out_gffs:{
+			description: "基因预测输出的gff文件列表", 
+			required: "true" , 
+			category:"output",
+			type:"Array[String]",
+			optional:"",
+			default:"" ,
+			suffix:"gff"
+		}
 
 
 		config_json:{
