@@ -12,9 +12,8 @@ task GenePredictionTask{
 		String MGM
 		String gmhmmp_parematers
 		String logfile
-		File pro_fa
-		File dna_fa
-		String out_gff
+        String outdir
+        String sample
 		File assemble_fa
 		String script
 		String mount
@@ -30,8 +29,8 @@ task GenePredictionTask{
 		if [ "$job_state" != "FINISH" ];then
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
-			
-			make -f ~{script}/GenePrediction.mk user=~{user} MGM=~{MGM} gmhmmp_parematers=~{gmhmmp_parematers} pro_fa=~{pro_fa} dna_fa=~{dna_fa} out_gff=~{out_gff} assemble_fa=~{assemble_fa} mod=~{mod} GenePrediction
+			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
+			make -f ~{script}/GenePrediction.mk user=~{user} MGM=~{MGM} gmhmmp_parematers=~{gmhmmp_parematers} pro_fa=~{outdir}/~{sample}/~{sample}.pro.fa dna_fa==~{outdir}/~{sample}/~{sample}.dna.fa out_gff==~{outdir}/~{sample}/~{sample}.gff assemble_fa=~{assemble_fa} mod=~{mod} GenePrediction
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			echo "###### task1 ends at $(date)"
 		fi
@@ -46,9 +45,9 @@ task GenePredictionTask{
 	}
 	output{
 		## 由于output是保留字，因此输出名不能output
-		File dna_fa_out = "~{dna_fa}"
-		File pro_fa_out = "~{pro_fa}"
-		File gff = "~{out_gff}"
+		File dna_fa_out = "~{outdir}/~{sample}/~{sample}.dna.fa"
+		File pro_fa_out = "~{outdir}/~{sample}/~{sample}.pro.fa"
+		File gff = "~{outdir}/~{sample}/~{sample}.gff"
 	}
 } 
 
