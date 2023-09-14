@@ -29,7 +29,7 @@ task GenePredictionTask{
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
 			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
-			make -f ~{script}/genePrediction.mk user=~{user} MGM=~{MGM} pro_fa=~{outdir}/~{sample}/~{sample}.pro.fa dna_fa=~{outdir}/~{sample}/~{sample}.dna.fa out_gff=~{outdir}/~{sample}/~{sample}.gff assemble_fa=~{assemble_fa} mod=~{mod} GenePrediction
+			make -f ~{script}/genePrediction.mk user=~{user} MGM=~{MGM} pro_fa=~{outdir}/~{sample}/~{sample}.pro.fa dna_fa=~{outdir}/~{sample}/~{sample}.dna.fa out_gff=~{outdir}/~{sample}/~{sample}.gff assemble_fa=~{assemble_fa} mod=~{mod} outdir=~{outdir} GenePrediction
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			echo "###### task1 ends at $(date)"
 		fi

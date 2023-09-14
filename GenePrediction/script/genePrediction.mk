@@ -50,7 +50,7 @@ outdir=$(dir $(abspath $(firstword $(out_gff))))
 GenePrediction:
 	echo "############### GenePrediction start at `date` ###############"
 	mkdir -p $(outdir)
-	cp $(MGM)/gm_key_64 /home/$(user)/.gm_key
+	cp $(MGM)/gm_key_64 ~/.gm_key
 	$(MGM)/gmhmmp -r -a -d -f G -m $(mod) -A $(pro_fa) -D $(dna_fa) -o $(out_gff) $(assemble_fa)
 	echo "############### GenePrediction end at `date` ###############"
 
