@@ -46,6 +46,6 @@ task GeneClusterTask{
 	}
 	output{
 		## 由于output是保留字，因此输出名不能output
-		File out_fa = ~{outdir}/~{prefix} + "_rep_seq.fasta" 
+		File out_fa = "~{outdir}/~{prefix}_rep_seq.fasta" 
 	}
 } 
