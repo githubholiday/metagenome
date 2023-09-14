@@ -18,7 +18,8 @@
                 "COMBINE_ARRAY": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/combine_array",
                 "SELECT_SOME": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/common/tools/select_some",
                 "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
-                "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/"
+                "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneCluster/script/",
+                "MMSEQ2":"/work/share/acdgo9idhi/install/miniconda/"
             },
             "parameter": {
                 "def_filesize": "1",

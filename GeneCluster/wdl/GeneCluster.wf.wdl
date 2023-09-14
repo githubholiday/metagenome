@@ -7,16 +7,17 @@ import "tasks/common/mergetable.task.wdl" as merge_t
 import "tasks/common/get_size.task.wdl" as getsize_t
 import "tasks/common/make_tag.wdl" as make_tag
 import "tasks/common/mytools.wdl" as mytools
-import "tasks/task_example.wdl" as task_example
+import "tasks/cluster.wdl" as cluter_t
 workflow GeneCluster{
 	input{
-		Array[String] bams
-		Array[String] samples
+		Array[File] infas
+        String outdir
+        String prefix
+        String mmseq2_para="--min-seq-id 0.5 -c 0.8 --cov-mode 0 --threads 4"
 
 		String report_json
 		File config_json
 		String mount
-		String outdir
 		String logdir = outdir + "/log"
 
 		String? qc_dir
@@ -42,61 +43,38 @@ workflow GeneCluster{
 	### 根据实际情况，添加task name
 	String logfile = logdir + "/Module.run.log.sql"
 
-	scatter (i in range(length(bams))){
+	
 		### 请注意 step1_name_的最后一个下划线，作为连字符
-		String scatter_name = "step1_name_" + samples[i]
-		call task_example.task1  as step1_name   { 
-			input:
-				infile = bams[i],
-
-				MakeFinishTag = config.software["MakeFinishTag"],
-				READLOG = config.software["READLOG"],
-
-				finish_tag = all_finish_tag ,
-				step_name = scatter_name,
-				outdir = outdir,
-				logfile = logfile,
-
-				mount = mount,
-				cpu = config.environment["cpu"],
-				docker = config.environment["docker"],
-				sge_queue = config.environment["sge_queue"],
-				memory = config.environment["memory"],
-				machine = config.environment["machine"],
-		}
-	}
-
-	call merge_t.merge_table as merge_table {
+	String scatter_name = "mmseq2"
+	call cluter_t.GeneClusterTask  as clutertask   { 
 		input:
-			## 修改以下三个
-			inputs = step1_name.output,
-			step_name = "merge_table",
-			prefix = "step1_name",
+            infa = infas,
+            prefix = prefix,
+            MMSEQ2 = config.software["MMSEQ2"],
+            mmseq2_para = mmseq2_para,
+			MakeFinishTag = config.software["MakeFinishTag"],
+			READLOG = config.software["READLOG"],
 
 			finish_tag = all_finish_tag ,
-			column=false,
-			outdir=outdir,
-			READLOG = config.software["READLOG"],
-			MakeFinishTag = config.software["MakeFinishTag"],
+			step_name = scatter_name,
+			outdir = outdir,
 			logfile = logfile,
 
-			PYTHON3=config.software["PYTHON3"],
-			Merge_Py=config.software["Merge_Py"],
 			mount = mount,
-			machine = config.environment["machine"],
+			cpu = config.environment["cpu"],
 			docker = config.environment["docker"],
 			sge_queue = config.environment["sge_queue"],
-			cpu = config.environment["cpu"],
-			memory = config.environment["memory"]
-	}
+			memory = config.environment["memory"],
+			machine = config.environment["machine"],
+		}
 
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [[merge_table.cmbfile] , step1_name.output2, step1_name.output, [config.parameter["readme"]] , [config.parameter["examples"]], step1_name.intermediate_files]
+	Array[Array[String]] upload_f = [ [clutertask.out_fa],  [config.parameter["readme"]]]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
-	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix,upload_dir_suffix ,upload_dir_suffix, upload_tools_suffix , key_process_dir_suffix ]
+	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix]
 
 	
 	if (defined(workid) && defined(reportdir)) {
@@ -145,29 +123,49 @@ workflow GeneCluster{
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
 
-		Array[String] output_bams = step1_name.output2
+		Array[String] out_fa = clutertask.out_fa
 
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
 	parameter_meta{
-		bams:{
-			description: "输入bam列表", 
+		infas:{
+			description: "所有样本的fa列表", 
 			required: "true" , 
 			category:"input",
-			type:"Array[String]",
+			type:"Array[File]",
 			optional:"",
 			default:"" ,
-			suffix:"bam"
+			suffix:"fa"
 		}
-		samples:{
-			description: "输入样品名列表", 
-			required: "true" , 
-			category:"input",
-			type:"Array[String]",
-			optional:"",
-			default:"" ,
-			suffix:"bam"
-		}		
+        prefix:{
+            description: "mmseq2输出结果的前缀", 
+            required: "true" , 
+            category:"input",
+            type:"String",
+            optional:"",
+            default:"" ,
+            suffix:""
+        }
+        mmseq2_para:{
+            description: "mmseq2参数", 
+            required: "true" , 
+            category:"input",
+            type:"String",
+            optional:"",
+            default:"--min-seq-id 0.5 -c 0.8 --cov-mode 0 --threads 4" ,
+            suffix:""
+        }
+        outdir:{
+            description: "结果路径", 
+            required: "true" , 
+            category:"output",
+            type:"String",
+            optional:"",
+            default:"" ,
+            suffix:""
+        }
+
+
 		config_json:{
 			description: "默认参数，配置文件，config/config.sge.json", 
 			required: "true" , 
@@ -244,11 +242,11 @@ workflow GeneCluster{
 
 	}
 	meta{
-		author:""
-		name:""
-		version:"v1.0.1"
-		mail:"@genome.cn"
-		description:""
-		software:"s1,s2,s3,s4,s5"
+		author:"Holiday T"
+		name:"mmseq2聚类fasta"
+		version:"v1.0.0"
+		mail:"chengfang@genome.cn"
+		description:"使用mmdseq2对fasta进行聚类，使用easy_cluster 功能"
+		software:"MMSEQ2"
 	}
 }
