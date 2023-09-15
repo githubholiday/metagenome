@@ -30,7 +30,7 @@ task GeneQuantTask{
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
 			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
-			make -f ~{script}/makefile ref=~{ref} R1=~{R1} R2=~{R2} outdir=~{outdir} tpm_file=~{outdir}/~{sample}.TPM.xls SALMON=~{salmon} SalmonAlignment
+			make -f ~{script}/makefile ref=~{ref} R1=~{R1} R2=~{R2} outdir=~{outdir} tpm_file=~{outdir}/~{sample}.TPM.xls SALMON=~{Salmon} SalmonAlignment
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			## 对于 多个*xls，想一起打包出来,建议用tar.gz，生成报告程序会自动解压
 			cd ~{outdir} && tar -czf xls.tar.gz *xls && cd - 
