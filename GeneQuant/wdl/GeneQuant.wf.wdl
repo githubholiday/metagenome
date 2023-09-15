@@ -59,7 +59,6 @@ workflow GeneQuant{
 
 				finish_tag = all_finish_tag ,
 				step_name = scatter_name,
-				outdir = outdir,
 				logfile = logfile,
 
 				mount = mount,
