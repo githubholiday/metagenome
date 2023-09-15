@@ -4,11 +4,11 @@ version 1.0
 task GeneClusterTask{
 	input{
 		Array[File] infa  ## 输入文件
-        String outdir
-        String prefix
-        String MMSEQ2
-        String mmseq2_para="--min-seq-id 0.5 -c 0.8 --cov-mode 0 --threads 4"
-        String script
+		String outdir
+		String prefix
+		String MMSEQ2
+		String mmseq2_para="--min-seq-id 0.5 -c 0.8 --cov-mode 0 --threads 4"
+		String script
 		String MakeFinishTag
 		String READLOG
 		String finish_tag = "UNFINISH"  ## 必须有这个tag
@@ -29,7 +29,7 @@ task GeneClusterTask{
 			echo "###### task1 starts at $(date)"
 			## command starts at here , 首先清理目录
 			[ -d ~{outdir} ] && rm -rf ~{outdir}/* || mkdir -p ~{outdir} && echo directory ~{outdir} is ok
-            make -f ~{script}/geneCluter.mk dna_fa=~{sep="," infa} outdir=~{outdir} prefix=~{outdir}/~{prefix} MMSEQ2=~{MMSEQ2} mmseq2_para=~{mmseq2_para} MMSEQ2
+			make -f ~{script}/geneCluter.mk dna_fa=~{sep="," infa} outdir=~{outdir} prefix=~{outdir}/~{prefix} MMSEQ2=~{MMSEQ2} mmseq2_para=~{mmseq2_para} MMSEQ2
 			~{MakeFinishTag} ~{logfile} ~{step_name}
 			## 对于 多个*xls，想一起打包出来,建议用tar.gz，生成报告程序会自动解压
 			cd ~{outdir} && tar -czf xls.tar.gz *xls && cd - 
