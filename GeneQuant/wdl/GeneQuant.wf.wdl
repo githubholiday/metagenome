@@ -7,11 +7,13 @@ import "tasks/common/mergetable.task.wdl" as merge_t
 import "tasks/common/get_size.task.wdl" as getsize_t
 import "tasks/common/make_tag.wdl" as make_tag
 import "tasks/common/mytools.wdl" as mytools
-import "tasks/task_example.wdl" as task_example
+import "tasks/quant.wdl" as gene_quant_t
 workflow GeneQuant{
 	input{
-		Array[String] bams
+		Array[String] R1s
+        Array[String] R2s
 		Array[String] samples
+        File ref
 
 		String report_json
 		File config_json
@@ -42,13 +44,16 @@ workflow GeneQuant{
 	### 根据实际情况，添加task name
 	String logfile = logdir + "/Module.run.log.sql"
 
-	scatter (i in range(length(bams))){
+	scatter (i in range(length(samples))){
 		### 请注意 step1_name_的最后一个下划线，作为连字符
-		String scatter_name = "step1_name_" + samples[i]
-		call task_example.task1  as step1_name   { 
+		String scatter_name = "gene_quant_" + samples[i]
+		call gene_quant_t.GeneQuantTask  as gene_quant_task   { 
 			input:
-				infile = bams[i],
-
+                sample = samples[i],
+                ref = ref,
+                R1 = R1s[i],
+                R2 = R2s[i],
+                outdir = outdir+"/"+samples[i],
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
 
@@ -69,9 +74,9 @@ workflow GeneQuant{
 	call merge_t.merge_table as merge_table {
 		input:
 			## 修改以下三个
-			inputs = step1_name.output,
+			inputs = gene_quant_task.tpm_file,
 			step_name = "merge_table",
-			prefix = "step1_name",
+			prefix = "gene_quant_task",
 
 			finish_tag = all_finish_tag ,
 			column=false,
@@ -93,10 +98,10 @@ workflow GeneQuant{
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [[merge_table.cmbfile] , step1_name.output2, step1_name.output, [config.parameter["readme"]] , [config.parameter["examples"]], step1_name.intermediate_files]
+	Array[Array[String]] upload_f = [[merge_table.cmbfile] , gene_quant_task.tpm_file]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
-	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix,upload_dir_suffix ,upload_dir_suffix, upload_tools_suffix , key_process_dir_suffix ]
+	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix ]
 
 	
 	if (defined(workid) && defined(reportdir)) {
@@ -145,20 +150,39 @@ workflow GeneQuant{
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
 
-		Array[String] output_bams = step1_name.output2
+		Array[String] sample_tpm = gene_quant_task.tpm_file
 
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
 	parameter_meta{
-		bams:{
-			description: "输入bam列表", 
+		ref:{
+			description: "基因组fa文件", 
 			required: "true" , 
 			category:"input",
-			type:"Array[String]",
+			type:"File",
 			optional:"",
 			default:"" ,
-			suffix:"bam"
+			suffix:"fa"
 		}
+        R1s:{
+            description: "输入样品R1 fastq文件列表", 
+            required: "true" , 
+            category:"input",
+            type:"Array[String]",
+            optional:"",
+            default:"" ,
+            suffix:"fastq.gz"
+        }
+        R2s:{
+            description: "输入样品R2 fastq文件列表", 
+            required: "true" , 
+            category:"input",
+            type:"Array[String]",
+            optional:"",
+            default:"" ,
+            suffix:"fastq.gz"
+        }
+
 		samples:{
 			description: "输入样品名列表", 
 			required: "true" , 
@@ -166,7 +190,7 @@ workflow GeneQuant{
 			type:"Array[String]",
 			optional:"",
 			default:"" ,
-			suffix:"bam"
+			suffix:""
 		}		
 		config_json:{
 			description: "默认参数，配置文件，config/config.sge.json", 
@@ -244,11 +268,11 @@ workflow GeneQuant{
 
 	}
 	meta{
-		author:""
-		name:""
-		version:"v1.0.1"
-		mail:"@genome.cn"
+		author:"Holiday Tu"
+		name:"使用salmon软件进行基因定量"
+		version:"v1.0.0"
+		mail:"chengfangtu@genome.cn"
 		description:""
-		software:"s1,s2,s3,s4,s5"
+		software:"salmon"
 	}
 }
