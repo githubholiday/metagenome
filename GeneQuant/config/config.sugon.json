@@ -25,7 +25,6 @@
                 "express": "y/x,y/x",
                 "def_resource": "2,4",
                 "max_resource": "6,10",
-                "examples": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/image_example.png",
                 "readme": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/readme.doc"
             }
         },
@@ -47,7 +46,6 @@
                 "template_md": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/template.md",
                 "input_json": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/input.json",
                 "table_software": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/table_software.xls",
-                "tools_dir": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/tools",
                 "report_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/config/report.sugon.config",
                 "qc_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/report/qc_config.json",
                 "platform": "sugon"
