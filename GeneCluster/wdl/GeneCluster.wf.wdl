@@ -123,7 +123,7 @@ workflow GeneCluster{
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
 
-		Array[String] out_fa = clutertask.out_fa
+		Array[File] out_fa = clutertask.out_fa
 
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
