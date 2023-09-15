@@ -18,7 +18,8 @@
                 "COMBINE_ARRAY": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/script/common/tools/combine_array",
                 "SELECT_SOME": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/script/common/tools/select_some",
                 "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
-                "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/script/"
+                "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/GeneQuant/script/",
+                "Salmon":"/work/share/acdgo9idhi/install/miniconda/bin/salmon"
             },
             "parameter": {
                 "def_filesize": "1",

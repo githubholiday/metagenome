@@ -54,6 +54,7 @@ workflow GeneQuant{
 				R1 = R1s[i],
 				R2 = R2s[i],
 				outdir = outdir+"/"+samples[i],
+                Salmon = config.software["Salmon"],
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
 
