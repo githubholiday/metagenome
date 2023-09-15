@@ -49,11 +49,11 @@ workflow GeneQuant{
 		String scatter_name = "gene_quant_" + samples[i]
 		call gene_quant_t.GeneQuantTask  as gene_quant_task   { 
 			input:
-                sample = samples[i],
-                ref = ref,
-                R1 = R1s[i],
-                R2 = R2s[i],
-                outdir = outdir+"/"+samples[i],
+				sample = samples[i],
+				ref = ref,
+				R1 = R1s[i],
+				R2 = R2s[i],
+				outdir = outdir+"/"+samples[i],
 				MakeFinishTag = config.software["MakeFinishTag"],
 				READLOG = config.software["READLOG"],
 
@@ -106,7 +106,7 @@ workflow GeneQuant{
 	
 	if (defined(workid) && defined(reportdir)) {
 		call report_t.oss_report as report{
-            input:
+			input:
 			## 可调参数
 			workid = workid,          ## 项目编号
 			reportdir = reportdir,    ## 报告存放路径
@@ -128,7 +128,7 @@ workflow GeneQuant{
 	
 	if (defined(workid) && defined(qc_dir)) {
 		call qc_t.check as qc_check{
-            input:
+			input:
 			## 可调参数
 			qc_dir = qc_dir,    ## 报告存放路径
 			project_name = project_name,     ## 报告名称
