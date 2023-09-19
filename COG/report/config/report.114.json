@@ -1,0 +1,10 @@
+[template]
+SAMPLE=6
+
+[shell]
+PYTHON3=/disk2/install/miniconda3/bin/python3
+PYTHON=/disk2/install/miniconda3/bin/python3
+PANDOC=/disk2/install/miniconda3/bin/pandoc
+MD_CCS=/disk2/PMO/liutao/bin/markdown.css
+GLIB=export LD_LIBRARY_PATH=/opt/glibc-2.14/lib:D_LIBRARY_PATH
+PDFLATEX=/annoroad/share/software/install/texlive/bin/x86_64-linux/pdflatex

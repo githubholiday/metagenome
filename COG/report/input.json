@@ -1,0 +1,9 @@
+{
+    "COG": {
+        "table_stat": "upload/bam_stat/*.xls",
+        "image_box": "upload/bam_stat/*.qual.boxplot.png",
+        "image_heat": "upload/bam_stat/*.qual.heatmap.png",
+        "table_example_a": "upload/tools/a_very_long_and_specific_image_name.png",
+        "table_software": "upload/tools/table_software.xls"
+    }
+}

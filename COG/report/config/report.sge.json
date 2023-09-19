@@ -1,0 +1,10 @@
+[template]
+SAMPLE=6
+
+[shell]
+PYTHON3=/annoroad/share/software/install/Python-3.3.2/bin/python3
+PYTHON=/annoroad/share/software/install/miniconda3/bin/python
+PANDOC=/annoroad/share/software/install/miniconda3/bin/pandoc
+MD_CCS=/annoroad/data1/bioinfo/PMO/cromwell/WDL/script/common/report_new/generate_md_report/markdown.css
+GLIB=export LD_LIBRARY_PATH=/opt/glibc-2.14/lib:D_LIBRARY_PATH
+PDFLATEX=/annoroad/share/software/install/texlive/bin/x86_64-linux/pdflatex
