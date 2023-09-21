@@ -1,0 +1,2 @@
+功能	软件名称（带超链接）	版本	参数
+比对	[bowtie](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml)	v2.4.4	-X 1000 --very-sensitive
