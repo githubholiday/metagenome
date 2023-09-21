@@ -231,7 +231,6 @@ workflow Anno{
 			count_file = count_file,
 			col = 1,
 			ardb_db = config.database["ARDB_Relation"],
-			col = 1,
 			ardb_count_out = outdir+"/ARDB/ARDB.count.xls",
 			ardb_count_anno_out = outdir+"/ARDB/ARDB.count.anno.xls",
 			outdir = outdir+"/ARDB/",
