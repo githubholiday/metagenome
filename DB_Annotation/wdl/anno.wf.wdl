@@ -138,8 +138,8 @@ workflow Anno{
 			kegg_out = outdir+"/KEGG/kegg.xls",
 			outfile = outdir+"/KEGG/allsample_kegg_count.xls"
 			PYTHON3 = config.software["PYTHON3"],
-			script =  config.parameter["script"]  
-			CSVTK = config.parameter["CSVTK"]
+			script =  config.parameter["script"] , 
+			CSVTK = config.parameter["CSVTK"],
 
 			MakeFinishTag = config.software["MakeFinishTag"],
 			READLOG = config.software["READLOG"],
@@ -163,7 +163,7 @@ workflow Anno{
 			metDB = config.database["COG"],
 			outfile = outdir+"/COG/COG.blast.txt",
 			outdir = outdir+"/COG/",
-			diamond = config.software["DIAMOND"]
+			diamond = config.software["DIAMOND"],
 			MakeFinishTag = config.software["MakeFinishTag"],
 			READLOG = config.software["READLOG"],
 
@@ -188,7 +188,7 @@ workflow Anno{
 			cog_count_anno_out = outdir+"/COG/COG.count.anno.xls",
 			PYTHON3 = config.software["PYTHON3"],
 			CSVTK = config.parameter["CSVTK"],
-			script =  config.parameter["script"]
+			script =  config.parameter["script"],
 		   
 			outdir = outdir+"/COG/",
 			MakeFinishTag = config.software["MakeFinishTag"],
@@ -212,7 +212,7 @@ workflow Anno{
 			metDB = config.database["ARDB"],
 			outfile = outdir+"/ARDB/ARDB.blast.txt",
 			outdir = outdir+"/ARDB/",
-			diamond = config.software["DIAMOND"]
+			diamond = config.software["DIAMOND"],
 			MakeFinishTag = config.software["MakeFinishTag"],
 			READLOG = config.software["READLOG"],
 
@@ -261,7 +261,7 @@ workflow Anno{
 			metDB = config.database["PHI"],
 			outfile = outdir+"/PHI/PHI.blast.txt",
 			outdir = outdir+"/PHI/",
-			diamond = config.software["DIAMOND"]
+			diamond = config.software["DIAMOND"],
 			MakeFinishTag = config.software["MakeFinishTag"],
 			READLOG = config.software["READLOG"],
 
