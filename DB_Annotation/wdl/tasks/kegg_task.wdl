@@ -48,7 +48,7 @@ task KEGG_KOBas{
 	}
 	output{
 		## 由于output是保留字，因此输出名不能output
-		File kobas_out = "~{outdir}/~{prefix}.xls " 
+		File kobas_out = "~{outfile} " 
 	}
 } 
 
@@ -101,8 +101,8 @@ task StatTask{
 	}
 	output{
 		## 由于output是保留字，因此输出名不能output
-		File pathway_out = "~{pathway_out}" 
-		File kegg_out = "~{kegg_out}"
+		File kegg_pathway_out = "~{pathway_out}" 
+		File kegg_ID_out = "~{kegg_out}"
 		File anno_count = "~{outfile}"
 	}
 }

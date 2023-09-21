@@ -19,9 +19,6 @@ task COGStatTask{
 		String step_name 
 		String outdir  ## 输出目录
 		String logfile
-		String PYTHON3
-		String CSVTK
-		String script
 		String mount
 		Int cpu
 		String docker
@@ -162,7 +159,7 @@ task ARDBStatTask{
 	output{
 		## 由于output是保留字，因此输出名不能output
 		File ardb_out = "~{ardb_count_anno_out}" 
-		File ardb_count_out = "~{ardb_count_out}"
+		File ardb_count_file = "~{ardb_count_out}"
 	}
 }
 

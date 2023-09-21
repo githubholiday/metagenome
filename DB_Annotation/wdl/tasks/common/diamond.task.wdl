@@ -5,6 +5,7 @@ task BlastpTask{
 	input{
 		File pepfa  ## 输入文件
 		String metDB
+		String script
 		String outfile
 		String diamond
 		String MakeFinishTag

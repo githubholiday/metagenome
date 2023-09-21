@@ -302,7 +302,7 @@ workflow Anno{
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [ [cog_blast.anno_file], [cog_stat.cog_count_anno], [kegg_stat.pathway_out],[kegg_stat.kegg_out],[kegg_stat.anno_count],[kegg_kobas.kobas_out],[phi_stat.phi_out],[ardb_stat.ardb_out],[ardb_stat.ardb_count_out],split_fa.out_fa,kegg_blastp.anno_file]
+	Array[Array[String]] upload_f = [ [cog_blast.anno_file], [cog_stat.cog_count_anno], [kegg_stat.kegg_pathway_out],[kegg_stat.kegg_ID_out],[kegg_stat.anno_count],[kegg_kobas.kobas_out],[phi_stat.phi_out],[ardb_stat.ardb_out],[ardb_stat.ardb_count_file],split_fa.out_fa,kegg_blastp.anno_file]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
 	Array[String] upload_p =[upload_dir_COG,upload_dir_COG,upload_dir_KEGG,upload_dir_KEGG,upload_dir_KEGG,upload_dir_KEGG,upload_dir_PHI,upload_dir_PHI,upload_dir_ARDB,upload_dir_ARDB, key_process_dir_fa,key_process_dir_KEGG ]
