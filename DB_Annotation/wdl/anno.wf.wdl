@@ -136,7 +136,7 @@ workflow Anno{
 			outdir = outdir+"/KEGG/",
 			pathway_out = outdir+"/KEGG/kegg.pathway.xls",
 			kegg_out = outdir+"/KEGG/kegg.xls",
-			outfile = outdir+"/KEGG/allsample_kegg_count.xls"
+			outfile = outdir+"/KEGG/allsample_kegg_count.xls",
 			PYTHON3 = config.software["PYTHON3"],
 			script =  config.parameter["script"] , 
 			CSVTK = config.parameter["CSVTK"],
