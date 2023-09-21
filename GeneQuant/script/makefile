@@ -25,5 +25,6 @@ SalmonAlignment:
 	mkdir -p ${outdir}/salmon_index/
 	${SALMON} index -t ${ref} -p 4 -i ${outdir}/salmon_index/
 	${SALMON} quant -i ${outdir}/salmon_index/ -l A -p 3 --meta -1 ${R1} -2 ${R2} -o ${outdir}
-	cat ${outdir}/quant.sf|cut -f1,4 >${tpm_file}
+	cat ${outdir}/quant.sf|cut -f1,4|sed "s/TPM/${sample}/g" >${tpm_file}
+	cat ${outdir}/quant.sf|cut -f1,5|sed "s/NumReads/${sample}/g" >${cout_file}
 	echo salmon_gene end at `date`

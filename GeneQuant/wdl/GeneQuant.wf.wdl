@@ -67,41 +67,40 @@ workflow GeneQuant{
 				docker = config.environment["docker"],
 				sge_queue = config.environment["sge_queue"],
 				memory = config.environment["memory"],
-				machine = config.environment["machine"],
+				machine = config.environment["machine"]
 		}
 	}
 
-	call merge_t.merge_table as merge_table {
+	call gene_quant_t.MergeQuantTask as merge_table {
 		input:
 			## 修改以下三个
-			inputs = gene_quant_task.tpm_file,
-			step_name = "merge_table",
-			prefix = "gene_quant_task",
+			count_files = gene_quant_task.count_file,
+            tpm_files = gene_quant_task.tpm_file,
+			outdir = outdir
+            PYTHON3 = config.software["PYTHON3"],
+            script = config.software["script"],
+			MakeFinishTag = config.software["MakeFinishTag"],
+			READLOG = config.software["READLOG"],
 
 			finish_tag = all_finish_tag ,
-			column=false,
-			outdir=outdir,
-			READLOG = config.software["READLOG"],
-			MakeFinishTag = config.software["MakeFinishTag"],
+			step_name = scatter_name,
 			logfile = logfile,
 
-			PYTHON3=config.software["PYTHON3"],
-			Merge_Py=config.software["Merge_Py"],
 			mount = mount,
-			machine = config.environment["machine"],
+			cpu = config.environment["cpu"],
 			docker = config.environment["docker"],
 			sge_queue = config.environment["sge_queue"],
-			cpu = config.environment["cpu"],
-			memory = config.environment["memory"]
+			memory = config.environment["memory"],
+			machine = config.environment["machine"],
 	}
 
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [[merge_table.cmbfile] , gene_quant_task.tpm_file]
+	Array[Array[String]] upload_f = [[merge_table.cmbfile] , gene_quant_task.tpm_file, gene_quant_task.count_file, [merge_table.tpm_file],[merge_table.count_file]]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
-	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix ]
+	Array[String] upload_p =[upload_dir_suffix,upload_dir_suffix,upload_dir_suffix,upload_dir_suffix,upload_dir_suffix ]
 
 	
 	if (defined(workid) && defined(reportdir)) {
@@ -150,7 +149,8 @@ workflow GeneQuant{
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
 
-		Array[String] sample_tpm = gene_quant_task.tpm_file
+		File tpm_file = merge_table.tpm_file
+        File count_file = merge_table.count_file
 
 	}
 	### 请如实填写，category(output, input)和required 必须要写清楚
