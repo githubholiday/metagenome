@@ -357,8 +357,6 @@ workflow Anno{
 		Array[Array[String]] qc_file = qc_f
 		Array[String] qc_place = qc_p
 
-		File output_bams = cog_stat.cog_count_anno
-		File cog_blast.anno_file
 
 
 	}
