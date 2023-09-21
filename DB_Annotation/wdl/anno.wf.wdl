@@ -84,7 +84,7 @@ workflow Anno{
 			input:
 				pepfa = split_fa.out_fa[i],
 				metDB = config.database["KEGG"],
-				outfile = outdir+"/KEGG/Split_Result/KEGG.blast."+[i]+".txt"
+				outfile = outdir+"/KEGG/Split_Result/KEGG.blast."+[i]+".txt",
 				outdir = outdir+"/KEGG/Split_Result",
 				diamond = config.software["DIAMOND"],
 				MakeFinishTag = config.software["MakeFinishTag"],
