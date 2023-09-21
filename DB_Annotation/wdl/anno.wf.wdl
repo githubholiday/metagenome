@@ -51,7 +51,6 @@ workflow Anno{
 
 	String logfile = logdir + "/Module.run.log.sql"
 
-	String scatter_name = "split_fa"
 	call anno_stat.SplitFaTask  as split_fa   { 
 		input:
 			infa = infa,
@@ -65,7 +64,7 @@ workflow Anno{
 			READLOG = config.software["READLOG"],
 
 			finish_tag = all_finish_tag ,
-			step_name = scatter_name,
+			step_name = "Split_Fa",
 			outdir = outdir,
 			logfile = logfile,
 
@@ -92,7 +91,7 @@ workflow Anno{
 				READLOG = config.software["READLOG"],
 
 				finish_tag = all_finish_tag ,
-				step_name = scatter_name,
+				step_name = "KEGG_Blastp"+[i],
 				logfile = logfile,
 
 				mount = mount,
@@ -118,7 +117,7 @@ workflow Anno{
 				READLOG = config.software["READLOG"],
 
 				finish_tag = all_finish_tag ,
-				step_name = scatter_name,
+				step_name = "KEGG_KOBAS+"+[i],
 				logfile = logfile,
 
 				mount = mount,
@@ -146,7 +145,7 @@ workflow Anno{
 			READLOG = config.software["READLOG"],
 
 			finish_tag = all_finish_tag ,
-			step_name = scatter_name,
+			step_name = "KEGG_Format_Stat",
 			outdir = outdir,
 			logfile = logfile,
 
