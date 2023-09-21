@@ -38,7 +38,6 @@
                 "express": "y/x,y/x",
                 "def_resource": "2,4",
                 "max_resource": "6,10",
-                "examples": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/image_example.png",
                 "readme": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/readme.doc"
             }
         },
@@ -60,7 +59,6 @@
                 "template_md": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/template.md",
                 "input_json": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/input.json",
                 "table_software": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/table_software.xls",
-                "tools_dir": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/tools",
                 "report_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/config/report.sugon.config",
                 "qc_config": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/report/qc_config.json",
                 "platform": "sugon"
