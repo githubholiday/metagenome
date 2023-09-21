@@ -90,7 +90,7 @@ workflow Anno{
 				READLOG = config.software["READLOG"],
 
 				finish_tag = all_finish_tag ,
-				step_name = "KEGG_Blastp"+[i],
+				step_name = "KEGG_diamond_blastp_"+[i],
 				logfile = logfile,
 
 				mount = mount,
