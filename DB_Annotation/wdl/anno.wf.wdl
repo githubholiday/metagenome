@@ -14,11 +14,11 @@ workflow Anno{
 	input{
 		File infa
 		String outdir
+		String number
 		File count_file
 		String report_json
 		File config_json
 		String mount
-		String outdir
 		String logdir = outdir + "/log"
 
 		String? qc_dir
@@ -231,7 +231,6 @@ workflow Anno{
 			count_file = count_file,
 			col = 1,
 			ardb_db = config.database["ARDB_Relation"],
-			col = 1,
 			ardb_count_out = outdir+"/ARDB/ARDB.count.xls",
 			ardb_count_anno_out = outdir+"/ARDB/ARDB.count.anno.xls",
 			outdir = outdir+"/ARDB/",
@@ -274,7 +273,7 @@ workflow Anno{
 			memory = config.environment["memory"],
 			machine = config.environment["machine"],
 	}
-	call anno_stat.PHIStatTask  as ardb_stat   { 
+	call anno_stat.PHIStatTask  as phi_stat   { 
 		input:
 			anno_file = phi_blastp.anno_file,
 			count_file = count_file,
@@ -303,7 +302,7 @@ workflow Anno{
 	## 最终结果目录的readme，必须要添加
 	## 如果没有image_example,请对应删除； 文件名应该尽量长，避免重复；并且类型是array
 	## 如果没有中间文件，请对应的删除，
-	Array[Array[String]] upload_f = [ [cog_blastp.anno_file], [cog_stat.cog_count],[cog_stat.cog_out], [kegg_stat.pathway_out],[kegg_stat.kegg_out],[kegg_stat.anno_count],[kegg_kobas.kobas_out],[phi_stat.phi_out],[ardb_stat.ardb_out],[ardb_stat.ardb_count_out],split_fa.out_fa,kegg_blastp.anno_file]
+	Array[Array[String]] upload_f = [ [cog_blastp.anno_file], [cog_stat.cog_count],[cog_stat.cog_out], [kegg_stat.kegg_pathway_out],[kegg_stat.kegg_ID_out],[kegg_stat.anno_count],kegg_kobas.kobas_out,[phi_stat.phi_out],[ardb_stat.ardb_out],[ardb_stat.ardb_count_file],split_fa.out_fa,kegg_blastp.anno_file]
 	## 注意倒数第二个是tools，存放examples
 	## 注意最后一个是 中间文件目录 
 	Array[String] upload_p =[upload_dir_COG,upload_dir_COG,key_process_dir_COG,upload_dir_KEGG,upload_dir_KEGG,upload_dir_KEGG,upload_dir_KEGG,upload_dir_PHI,upload_dir_PHI,upload_dir_ARDB,upload_dir_ARDB, key_process_dir_fa,key_process_dir_KEGG ]
