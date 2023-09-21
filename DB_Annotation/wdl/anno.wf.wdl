@@ -90,7 +90,7 @@ workflow Anno{
 				READLOG = config.software["READLOG"],
 
 				finish_tag = all_finish_tag ,
-				step_name = "KEGG_diamond_blastp_"+[i],
+				step_name = "KEGG_diamond_blastp_"+i,
 				logfile = logfile,
 
 				mount = mount,
@@ -103,7 +103,7 @@ workflow Anno{
 		call kegg_t.KEGG_KOBas  as kegg_kobas   { 
 			input:
 				anno_file = kegg_blastp.anno_file,
-				outfile = outdir+"/KEGG/Split_Result/KEGG.kobas."+[i]+".txt",
+				outfile = outdir+"/KEGG/Split_Result/KEGG.kobas."+i+".txt",
 				outdir = outdir+"/KEGG/Split_Result",
 				PYTHON3 = config.software["PYTHON3"],
 				script =  config.software["script"],
@@ -116,7 +116,7 @@ workflow Anno{
 				READLOG = config.software["READLOG"],
 
 				finish_tag = all_finish_tag ,
-				step_name = "KEGG_KOBAS+"+[i],
+				step_name = "KEGG_KOBAS_"+i,
 				logfile = logfile,
 
 				mount = mount,
