@@ -65,7 +65,6 @@ workflow Anno{
 
 			finish_tag = all_finish_tag ,
 			step_name = "Split_Fa",
-			outdir = outdir,
 			logfile = logfile,
 
 			mount = mount,
@@ -146,7 +145,6 @@ workflow Anno{
 
 			finish_tag = all_finish_tag ,
 			step_name = "KEGG_Format_Stat",
-			outdir = outdir,
 			logfile = logfile,
 
 			mount = mount,
