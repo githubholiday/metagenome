@@ -182,7 +182,7 @@ workflow Anno{
 		input:
 			anno_file = cog_blastp.anno_file,
 			count_file = count_file,
-			cog_anno = config.database["COG_ANNO"],
+			cog_anno = config.database["COG_Anno"],
 			col = 1,
 			cog_count_out = outdir+"/COG/COG.count.xls",
 			cog_count_anno_out = outdir+"/COG/COG.count.anno.xls",
