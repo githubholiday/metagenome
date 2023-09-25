@@ -2,13 +2,13 @@
     "module": {
         "DB_Annotation": {
             "database": {
-                "KEGG":"",
-                "kobas_db":"",
-                "COG":"",
-                "COG_Anno":"",
-                "ARDB":"",
-                "ARDB_Relation":"",
-                "PHI":""
+                "KEGG":"/work/share/acdgo9idhi/tuchengfang/Database/kegg.dmnd",
+                "kobas_db":"/work/share/acdgo9idhi/tuchengfang/Database/kobas",
+                "COG":"/work/share/acdgo9idhi/tuchengfang/Database/myva.dmnd",
+                "COG_Anno":"/work/share/acdgo9idhi/tuchengfang/Database/cog_anno.txt",
+                "ARDB":"/work/share/acdgo9idhi/tuchengfang/Database/ardb.pfasta.dmnd",
+                "ARDB_Relation":"/work/share/acdgo9idhi/tuchengfang/Database/id2antibiotic.xls",
+                "PHI":"/work/share/acdgo9idhi/tuchengfang/Database/phi.fa.dmnd"
             },
             "environment": {
                 "memory": "3 GB",
@@ -28,10 +28,10 @@
                 "PYTHON3": "/work/share/acdgo9idhi/install/miniconda/bin/python",
                 "PERL":"/usr/bin/perl",
                 "script": "/work/share/acdgo9idhi/tuchengfang/GIT/metagenome/DB_Annotation/script/",
-                "DIAMOND":"",
-                "kobas_py":"",
-                "kobas_env":"",
-                "CSVTK":""
+                "DIAMOND":"/work/home/tuchengfang/miniconda3/bin/diamond",
+                "kobas_py":"/work/share/acdgo9idhi/tuchengfang/Database/kobas-3.0/scripts/annotate.py",
+                "kobas_env":"/work/home/tuchengfang/miniconda3/envs/kobas/bin",
+                "CSVTK":"/work/home/tuchengfang/miniconda3/bin/csvtk"
             },
             "parameter": {
                 "def_filesize": "1",
