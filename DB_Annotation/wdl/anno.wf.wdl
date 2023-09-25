@@ -139,7 +139,7 @@ workflow Anno{
 			outfile = outdir+"/KEGG/allsample_kegg_count.xls",
 			PYTHON3 = config.software["PYTHON3"],
 			script =  config.software["script"] , 
-			CSVTK = config.parameter["CSVTK"],
+			CSVTK = config.software["CSVTK"],
 
 			MakeFinishTag = config.software["MakeFinishTag"],
 			READLOG = config.software["READLOG"],
@@ -187,7 +187,7 @@ workflow Anno{
 			cog_count_out = outdir+"/COG/COG.count.xls",
 			cog_count_anno_out = outdir+"/COG/COG.count.anno.xls",
 			PYTHON3 = config.software["PYTHON3"],
-			CSVTK = config.parameter["CSVTK"],
+			CSVTK = config.software["CSVTK"],
 			script =  config.software["script"],
 		   
 			outdir = outdir+"/COG/",
