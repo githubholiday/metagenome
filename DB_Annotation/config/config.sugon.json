@@ -4,7 +4,7 @@
             "database": {
                 "KEGG":"/work/share/acdgo9idhi/tuchengfang/Database/kegg.dmnd",
                 "kobas_db":"/work/share/acdgo9idhi/tuchengfang/Database/kobas",
-                "COG":"/work/share/acdgo9idhi/tuchengfang/Database/myva.dmnd",
+                "COG":"//work/share/acdgo9idhi/tuchengfang/Database/COG/myva.dmnd",
                 "COG_Anno":"/work/share/acdgo9idhi/tuchengfang/Database/cog_anno.txt",
                 "ARDB":"/work/share/acdgo9idhi/tuchengfang/Database/ardb.pfasta.dmnd",
                 "ARDB_Relation":"/work/share/acdgo9idhi/tuchengfang/Database/id2antibiotic.xls",
