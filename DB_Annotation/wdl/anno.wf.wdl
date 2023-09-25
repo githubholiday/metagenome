@@ -285,7 +285,7 @@ workflow Anno{
 			col = 1,
 			PYTHON3 = config.software["PYTHON3"],
 			script =  config.software["script"],
-			PERL = config.parameter["PERL"],
+			PERL = config.software["PERL"],
 			phi_count_anno_out =outdir+"/PHI/PHI.count.anno.xls", 
 			outdir = outdir+"/PHI/",
 		   
