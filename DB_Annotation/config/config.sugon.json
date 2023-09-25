@@ -1,6 +1,6 @@
 {
     "module": {
-        "DB_Annotation": {
+        "COG": {
             "database": {
                 "KEGG":"/work/share/acdgo9idhi/tuchengfang/Database/kegg.dmnd",
                 "kobas_db":"/work/share/acdgo9idhi/tuchengfang/Database/kobas",
