@@ -32,7 +32,7 @@ PHI_Stat:
 	mkdir -p $(outdir)
 	$(PERL) -i.bak2 -F'\t' -alne 'if(!/Gene_ID/){$$F[2]=(split(/\|/,$$F[1]))[-1];$$F[1]=(split(/\|/,$$F[1]))[0]};print "$$F[0]\t$$F[1]\t$$F[2]"' $(anno_file)
 	sed -i '1a #Gene\tSubject_ID\tAffection'  $(anno_file)
-	$(PYTHON3) ${script}/get_anno_count.py -a $(anno_file)  -c $(count_file) -o $(phi_count_anno_out)
+	$(PYTHON3) ${script}/get_anno_count.py -a $(anno_file)  -col 2 -c $(count_file) -o $(phi_count_anno_out)
 	echo "######## single sample PHI annotation end at `date` ########"
 
 ARDB_Stat:

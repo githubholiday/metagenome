@@ -68,11 +68,11 @@ def main():
 			epilog='author:\t{0}\nmail:\t{1}'.format(__author__,__mail__))
 	parser.add_argument('-a','--anno',help='anno file',dest='anno')
 	parser.add_argument('-c','--count',help='gene count file of all sample',dest='count',required=True)
-	parser.add_argument('-col','--col',help='the col of anno in anno file',dest='count',required=True)
+	parser.add_argument('-col','--col',help='the col of anno in anno file',dest='column',type=int,required=True)
 	parser.add_argument('-o','--output',help='output of anno count',dest='output',required=True)
 	args=parser.parse_args()
 
-	gene_anno_dict = read_anno(args.anno, 1)
+	gene_anno_dict = read_anno(args.anno, args.column)
 	anno_count_dict, sample_list = get_anno_count(args.count, gene_anno_dict)
 	write_anno_count(anno_count_dict, sample_list, args.output)
 	
