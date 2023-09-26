@@ -36,7 +36,7 @@ def get_anno_count( count_file, anno_dict):
 				continue
 			gene = tmp[0]
 			count_list = tmp[1:]
-			print(sample_list)
+			#print(sample_list)
 			for i in range(len(count_list)):
 				sample = sample_list[i]
 				count = count_list[i]
