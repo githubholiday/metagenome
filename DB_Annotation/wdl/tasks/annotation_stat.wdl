@@ -212,6 +212,6 @@ task SplitFaTask{
 	}
 	output{
 		## 由于output是保留字，因此输出名不能output
-		Array[File] out_fa = glob("~{outdir}/~{prefix}/*" )
+		Array[File] out_fa = glob("~{outdir}/~{prefix}*/*" )
 	}
 }
