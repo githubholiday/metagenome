@@ -57,7 +57,7 @@ def write_anno_count( anno_count_dict, sample_list, output ):
 			cout = [anno_id]
 			for sample in sample_list:
 				if sample in anno_count_dict[anno_id]:
-					anno_count = str(anno_count_dict[anno_id][sample])
+					anno_count = '{0:.2f}'.format(anno_count_dict[anno_id][sample])
 					cout.append(anno_count)
 				else:
 					cout.append("0")
