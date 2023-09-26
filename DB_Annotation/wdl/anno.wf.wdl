@@ -110,7 +110,7 @@ workflow Anno{
 				script =  config.software["script"],
 				kobas_py = config.software["kobas_py"],
 				kobas_db = config.database["kobas_db"],
-				kobas_env = config.parameter["kobas_env"],
+				kobas_env = config.software["kobas_env"],
 
 
 				MakeFinishTag = config.software["MakeFinishTag"],
