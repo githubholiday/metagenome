@@ -1,0 +1,4 @@
+name: megahit
+channels:
+  - defaults
+prefix: /annogene/cloud/bioinfo/PMO/yangzhang/miniconda3/envs/megahit

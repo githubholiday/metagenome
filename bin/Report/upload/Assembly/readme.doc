@@ -1,0 +1,24 @@
+该目录下为各个样本的组装结果。
+
+Assembly_stat.xls：组装统计表
+（1）Sample：样品名称；
+（2）Contig：Contig数量；
+（3）Contig bases(bp)：组装序列总长度；
+（4）N50(bp)：把组装出的contigs从大到小排列，当其累计长度刚刚超过全部组装序列总长度50%时，最后一个contig的大小即为N50的大小；
+（5）N90(bp)：把组装出的contigs从大到小排列，当其累计长度刚刚超过全部组装序列总长度90%时，最后一个contig的大小即为N90的大小；
+（6）Max(bp)：组装的contigs中长度最大的contig的长度；
+（7）Number>=2000bp：长度大于2000bp的contigs数量。
+
+*/*.GC.xls：GC含量统计结果表
+1）A：A碱基的数量及其占总长的比例；
+（2）T：T碱基的数量及其占总长的比例；
+（3）C：C碱基的数量及其占总长的比例；
+（4）G：G碱基的数量及其占总长的比例；
+（5）N：序列中gap的长度（bp）及其占总长的比例；
+（6）Total Genome base：序列的总长度（单位为bp）。
+
+*/*_length_dis.p*:样品contig长度分布图
+横坐标：contig长度（bp），纵坐标：contig数目（bp），横坐标最大值为2000bp，超过2000bp的contig按照2000bp进行统计。
+
+*/final.contigs.fa
+组装后的contig序列

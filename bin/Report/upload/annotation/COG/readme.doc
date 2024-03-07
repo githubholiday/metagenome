@@ -1,0 +1,11 @@
+Gene_All.COG.TPM.xls：
+（1）Gene_ID：基因的编号；
+（2）COG_ID：COG数据库编号；
+（3）COG_Anno：COG注释功能；
+（4）COG_Class：功能分类；
+（5）COG_Class_anno：功能描述；
+（6）其余：各样本的TPM值。
+
+Gene_All.COG.TPM.Summary.COG_Class.xls：
+将Gene_All.COG.TPM.xls按照COG_Class列合并其余列，其中如果是TPM值的列，则在合并时加和；如果是描述性信息，则在合并时用逗号隔开。
+后续的差异分析、比较分析、β多样性分析均是依据此Summary文件。

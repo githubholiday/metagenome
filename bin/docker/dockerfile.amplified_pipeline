@@ -1,0 +1,6 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+ADD amplified_pipeline.yaml /
+RUN conda-env create -f /amplified_pipeline.yaml
+USER test_user

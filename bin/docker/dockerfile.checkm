@@ -1,0 +1,9 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+RUN mamba install -y -c bioconda -c conda-forge python=3.11
+RUN pip3  install -y numpy matplotlib pysam checkm-genome -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN mamba install -y -c bioconda hmmer
+RUN mamba install -y -c bioconda prodigal
+RUN mamba install -y -c bioconda pplacer
+USER test_user

@@ -1,0 +1,35 @@
+该目录下的内容是kraken2进行物种注释后的文件以及统计绘图等。
+
+1. Heatmap目录：各分类层级物种丰度聚类热图（top20）
+Heatmap/heatmap*.top*.p*：聚类热图
+横坐标为样本名称，纵坐标为物种名称，颜色代表物种丰度百分比log2处理后的对应值，白色到红色，丰度逐渐升高。top20计算方法：先将各样本中物种绝对丰度转为百分比数值，所有样本的百分比数值加和，取和最大的前20个物种，其余所有作为Others。
+Heatmap/*xls：聚类热图的作图文件
+
+2. kraken.stat.xls：kraken注释统计表
+（1）Sample：样本名称；
+（2）Total Reads：用于kraken注释的reads数；
+（3）Taxonomy Mapped Reads：注释上物种的reads数；
+（4）Taxonomy Mapped Rate(%)：注释上物种的reads占比。
+
+3. Sample目录：各个样本的kraken注释结果文件（将未比对上的去除）
+3.1 Sample/*/*.kraken_bracken_species.report.xls:kraken2注释后的结果文件
+（1）Fraction：此行分类中的reads在总reads的比例；
+（2）Count：该分类单元的read数，例如一个属，会包括这个属之下的所有种；
+（3）Count_Single_Type：单独比对到该分类单元的reads数，不包含下一分级比对到的reads数；
+（4）Level：分类类型代码，每种代码含义如下，(U)nclassified<未分类>, (R)oot<分类树起始>, (D)omain<域>, (K)ingdom<界>,(P)hylum<门>, (C)lass<纲>, (O)rder<目>, (F)amily<科>, (G)enus<属>, or (S)pecies<种>；
+（5）Taxomony_ID：分类对应的NCBI分类ID；
+（6）Taxomony：分类的具体名称。
+
+3.2 Sample/*/*.kraken.report.xls:各个样本的kraken2的注释原始结果，含义如上表，包含了未比对上的（unclassified）
+3.3 Sample/*/*.krona.html：krona可视化结果，可以通过浏览器打开，可以参见结题报告中的结果说明。
+
+4. Species_count.xls：各个样本在不同分类层级下的物种数目
+（1）Sample；样本名称；
+（2）第二行-最后：分别为 界、门、纲、目、科、属、种，数字为注释到该分类的物种类型数。
+
+5. Stat_barplot：各分类层级物种丰度分布统计（top20）
+Stat_barplot/*richness*top.p*:物种丰度图
+横坐标为样本名称，纵坐标为各样本中对应物种的相对丰度，不同颜色代表不同的物种，颜色图例见图右侧。top20计算方法：先将各样本中物种绝对丰度转为百分比数值，所有样本的百分比数值加和，取和最大的前20个物种，其余所有作为Others。
+Stat_barplot/*xls：作图文件（同Heatmap作图文件）
+
+6. merge.qiime.*xls：各分类层级的物种丰度表

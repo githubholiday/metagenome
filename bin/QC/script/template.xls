@@ -1,0 +1,4 @@
+Type	Type	A	B	C	D	Indir	Header	Description	Standard	Exception_Reason	Suggestion
+Contig	Contig	(400000,1000000000)	(300000,400000)	(200000,300000)	(0,200000)	Indir/assemble/Assembly_stat.xls	C	contig长度	>=300,000bp	NA	NA
+N50bp	N50	(4000,10000000000)	(3000,4000)	(2000,3000)	(0,2000)	Indir/assemble/Assembly_stat.xls	C	N50	>=3,000bp	NA	NA
+N90bp	N90	(500000,100000000000)	(400000,500000)	(300000,400000)	(0,300000)	Indir/assemble/Assembly_stat.xls	C	N90	>=400,000bp	NA	NA

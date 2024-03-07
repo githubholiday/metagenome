@@ -1,0 +1,42 @@
+1. bin_num_stat.xls	分箱数目统计
+（1）Sample：样本名称；
+（2）Bin_number：分箱的数目。
+
+2. */*checkm_summary.xls	样本checkM评估分箱统计
+（1）Bin Id：bin的编号；
+（2）Marker lineage：谱系注释信息；
+（3）Completeness：bin的完整性打分；
+（4）Contamination：bin的污染度打分。
+
+3. checkm_summary.web.xls	样本checkM评估分箱统计示例表
+
+4. */*bin_summary.xls	分箱筛选后统计
+（1）BinName：bin的编号；
+（2）BinCompleteness：bin的完整性打分；
+（3）BinContamination：bin污染度打分；
+（4）BinStrainHeterogeneity：Strain不均匀性；
+（5）BinGenomeSize：基因组大小；
+（6）NumberContigs：bin中包含的contig数目
+
+
+5. bin_summary.web.xls	分箱筛选后统计示例表
+
+6. */filter_bins/*fa	筛选后的bin序列文件，FASTA格式
+
+7. */*Summary_Plots1.pdf/png	全部bin完整性和污染度分布图
+
+8. */*Summary_Plots2.pdf/png	样本bin的基因组大小和深度分布图
+
+9. */len_hist_plot/*pdf/png	bin中contig的长度和数目分布
+
+10. */nx_plot/*pdf/png	bin的拼接程度评估
+
+11. */marker_plot/*pdf/png	marker基因分布图
+
+12. taxonomy_summary.xls	分箱注释统计
+（1）sample：样本名称；
+（2）taxonomy_name：注释到的属名；
+（3）taxonomy_count：样本注释到该属的bin数目；
+（4）taxonomy_percent：该样本中注释到该属bin的比例。
+
+13. taxonomy_summary.web.xls        分箱注释统计

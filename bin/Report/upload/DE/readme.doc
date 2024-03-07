@@ -1,0 +1,46 @@
+.
+├── ANOVA
+│   ├── ANOVA_Name1.xls
+│   ├── Name1
+│   │   ├── boxplot_Name1_d_Bacteria.p_Actinobacteria.c_Actinobacteria.o_Corynebacteriales.f_Corynebacteriaceae.g_Corynebacterium.s_Corynebacterium_imitans.pdf
+│   │   └── boxplot_Name1_d_Bacteria.p_Actinobacteria.c_Actinobacteria.o_Corynebacteriales.f_Corynebacteriaceae.g_Corynebacterium.s_Corynebacterium_imitans.png
+├──wilcox
+│   ├── Group1_Group2
+│   │   ├── boxplot_Group1_Group2_d_Bacteria.p_Actinobacteria.c_Actinobacteria.o_Corynebacteriales.f_Mycobacteriaceae.g_Mycobacterium.s_Mycobacterium_sp._JS623.pdf
+│   │   ├── boxplot_Group1_Group2_d_Bacteria.p_Actinobacteria.c_Actinobacteria.o_Corynebacteriales.f_Mycobacteriaceae.g_Mycobacterium.s_Mycobacterium_sp._JS623.png
+│   └── wilcox_Group1_Group2.xls
+└── LEfSe
+    ├── Group1_Group2
+    │   ├── biomarkers2.zip
+    │   ├── biomarkers4.zip
+    │   ├── Group1_Group2.lefse.lda2.bar.pdf
+    │   ├── Group1_Group2.lefse.lda2.bar.png
+    │   ├── Group1_Group2.lefse.lda2.significant_cladogram.pdf
+    │   ├── Group1_Group2.lefse.lda2.significant_cladogram.png
+    │   ├── Group1_Group2.lefse.lda4.bar.pdf
+    │   ├── Group1_Group2.lefse.lda4.bar.png
+    │   ├── Group1_Group2.lefse.lda4.significant_cladogram.pdf
+    │   └── Group1_Group2.lefse.lda4.significant_cladogram.png
+
+一、ANOVA：目录下为使用anova检验方法得到的差异物种（三组及以上的差异分析）。
+ANOVA*.xls：差异物种结果文件。
+（1）Name：物种的名字；
+（2）*mean：组内物种丰度的均值；
+（3）*sd：组内物种丰度的标准差；
+（4）p_value：小于0.05时差异显著（差异不显著的物种已被过滤）；
+（5）p_adjust：BH方法校正后的p_value值。
+*/boxplot*.p*：每个比较组合中p值最小的前10个物种的boxplot图。横轴为样品分组；纵向为对应物种的绝对丰度。图的文件名和图中的标题名以物种名字命名，其中需要注意的是：物种名字中空格，引号，斜线，括号等符号被替换为下划线或者点。原名字可以从对应比较组的ANOVA*.xls中找到。
+
+二、wilcox：目录下为使用wilcox秩和检验方法得到的差异物种（两组之间的差异分析）。
+wilcox*.xls：差异物种结果文件。
+（1）Name：物种的名字；
+（2）*mean：组内物种丰度的均值；
+（3）*sd：组内物种丰度的标准差；
+（4）p_value：小于0.05时差异显著（差异不显著的物种已被过滤）；
+（5）p_adjust：BH方法校正后的p_value值。
+*/boxplot*.p*：每个比较组合中p值最小的前10个物种的boxplot图。横轴为样品分组；纵向为对应物种的绝对丰度。图的文件名和图中的标题名以物种名字命名，其中需要注意的是：物种名字中空格，引号，斜线，括号等符号被替换为下划线或者点。原名字可以从对应比较组的wilcox*.xls中找到。
+
+三、LEfSe：目录下为LEfSe方法的组间差异结果，根据LDA阈值2和4生成两套结果（两组之间的差异分析）。
+*lefse.lda*.significant_cladogram.p*：差异特征展示图；
+*lefse.lda*.bar.p*：LDA判别分析图。通过统计两个组别当中有显著作用的微生物类群通过 LDA 分析（线性回归分析）后获得的 LDA 分值，图中展示了 LDA 分值大于设定值（2，4）的物种，即组间具有统计学差异的Biomarker；
+biomarkers*.zip：所有有差异的物种的柱状图结果。

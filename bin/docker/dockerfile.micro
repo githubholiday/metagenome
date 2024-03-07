@@ -1,0 +1,9 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+RUN mamba install -y -c bioconda -c conda-forge seqkit
+RUN mamba install -y -c bioconda -c conda-forge bwa
+RUN mamba install -y -c bioconda -c conda-forge kraken2
+RUN mamba install -y -c bioconda -c conda-forge mmseqs2
+RUN mamba install -y -c bioconda -c conda-forge bracken
+USER test_user

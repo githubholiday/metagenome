@@ -1,0 +1,67 @@
+#software
+BWA=/annoroad/share/software/install/bwa-0.7.12/bwa
+SMRTLINK=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/pb_smrt_link10.1/smrtlink/smrtcmds/bin
+PYTHON3=/annoroad/share/software/install/Python-3.3.2/bin/python3
+PYTHON3_Report=/annoroad/share/software/install/Python-3.3.2/bin/python3
+KRAKEN2=/annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/lihuayun/software/miniconda/miniconda3/bin/kraken2
+BRACKEN=/annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/lihuayun/software/miniconda/miniconda3/bin/bracken
+CondaBIN=/annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/lihuayun/software/miniconda/miniconda3/bin
+PERL=/annoroad/share/software/install/perl-5.16.2/bin/perl
+CANU=/annoroad/data1/bioinfo/PMO/yangweifei/software/Assembly/Canu/canu-2.1.1/bin/canu
+CHECKM=
+RSCRIPT=Rscript
+CONVERT=convert
+gmhmmp=gmhmmp
+DIOMAND=/annogene/datayw/bioinfo/PMO/zhangyue/software/DIAMOND/diamond
+HMMSCAN=/annogene/datayw/share/software/install/hmmer-3.1b1/bin/hmmscan
+MULTIPROCESS=/home/zanyuan/bin/multiProcess
+BLASTP=/annogene/datayw/share/software/install/ncbi-blast-2.2.28/bin/blastp
+BLASTX=/annogene/datayw/share/software/install/ncbi-blast-2.2.28/bin/blastx
+SMRTLINK_BIN=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/pb_smrt_link10.1/smrtlink/smrtcmds/bin
+python3_sge=/annogene/datayw/share/software/install/Python-3.3.2/bin/python3
+pipeline_generate=/annogene/cloud/bioinfo/Public/HybridCloud/GIT/Software/public/pipeline_generate/gomonitor/pipeline_generate.py
+ags_plus=/annogene/cloud/bioinfo/Public/Tools/ags_plus/current/bin_ags_plus/ags_plus
+concoct_dir=/annoroad/share/software/install/miniconda3/envs/metawrap-env/bin
+metabat2_dir=/annoroad/share/software/install/miniconda3/envs/metawrap-env/bin
+trinity=/annogene/datayw/share/software/install/trinity
+LongOrfs=TransDecoder.LongOrfs
+Predict=TransDecoder.Predict
+
+#database
+KRAKEN2_DB=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/meta_genome_Database/Kraken2_Database/database2
+PATHOGEN_DB /annoroad/data1/bioinfo/PMO/tuchengfang/bin/scripts/python_program/pathogen/test/pathogen.db
+COGDB=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/COG/myva
+PHIDB=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/PHI/phi.fa
+DBCAN=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/dbCAN/dbCAN-fam-HMMs.txt
+ARDB=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/ARDB/resisGenes.pfasta
+EGGNOG=/annogene/cloud/bioinfo/PROJECT/RD/Cooperation/RDProject/Other_RD/ngs_bioinfo/yw-454/zhangyue/Analysis/databases/Bateria/bac.fa
+UNIPROT=/annogene/datayw/bioinfo/Public/database/Public/Swissport/current/uniprot_sprot.fasta
+SPORTDB=/annogene/datayw/bioinfo/Public/database/Public/Swissport/current/sprot.anno
+SWISSPROT=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/swissprot/swissprot.fasta
+NRDB=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/NR/nr_meta
+NRDB=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/NR_meta/nr_meta
+uniprot=/annogene/datayw/bioinfo/Public/database/Public/Trinotate/current/swiss/uniprot_sprot.pep
+CHECKM_DATA_DIR=/annogene/cloud/bioinfo/PMO/yuezhang/pipeline/MetaGenomes/databases/checkm_data_dir
+accession2taxid=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/NR/meta.prot.accession2taxid
+TaxInfo=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/NR/TaxonomyPickUp/TaxInfo.txt
+
+#config
+mod=/annoroad/bioinfo/PMO/wangban/myperl/meta/MetaGeneMarkv.3.26/MetaGeneMark_linux_64/MetaGeneMark_v1.mod
+
+#SOFTWARE PAREMETERS
+CANU_OPT=correctedErrorRate=0.025 corMinCoverage=0 corOutCoverage=all corMhapSensitivity=high corMaxEvidenceCoverageLocal=10 corMaxEvidenceCoverageGlobal=10 oeaMemory=32 redMemory=32 batMemory=32
+gmhmmp_parematers=-r -a -d -f G
+cd-hit_parematers=-c 0.95 -G 0 -aS 0.9 -d 0 -T 10 -M 10000
+NR_BLAST_PAREMATERS=-evalue 1e-5 -num_alignments 5 -num_threads 4 -outfmt \"6 std stitle\"
+BLAST_PAREMATERS=-evalue 1e-5 -num_alignments 5 -num_threads 4 -outfmt "6 std stitle"
+concoct_parematers=-c 10000 -o 0 --merge_last
+PBMM2_PAREMATERS=--sort --sample FT5-1 -j 5 --preset CCS --log-level INFO
+CHECKM_PAREMATERS=-t 4 -x fa
+NR_DIOMAND_PAREMATERS=--outfmt 6 --sensitive --threads 5 --evalue 1e-5
+
+
+
+
+
+
+

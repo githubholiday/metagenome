@@ -1,0 +1,14 @@
+##编译器
+smrtlink_bin=/annogene/datayw/share/software/install/smrtlink_8.0.0.80529/smrtlink/smrtcmds/bin
+BAM2FASTA=$(smrtlink_bin)/bam2fasta
+
+##软件
+minimap2=/annogene/datayw/share/software/install/minimap2-2.12/minimap2
+samtools=/annogene/datayw/share/software/install/smrtlink_10.1.0.119588/smrtcmds/bin/samtools
+MetaBAT2_dir=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/software/metabat2/metabat
+MetaBAT2=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/software/metabat2/metabat/metabat2
+checkm_dabase=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/database/checkM
+checkm=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/software/miniconda3/bin/checkm
+gtdbtk=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/software/miniconda3/envs/gtdbtk/bin/gtdbtk
+gtdbtk_database=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/database/gtdbtk/release202
+PYTHON3=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/huayunli/software/miniconda3/bin/python3

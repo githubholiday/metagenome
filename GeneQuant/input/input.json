@@ -1,8 +1,0 @@
-{
-  "module_name.mount": "@mount /mnt/ false",
-  "module_name.workid": "@workid",
-  "module_name.reportdir": "@reportdir",
-  "module_name.config_json": "@config"
-}
-
-

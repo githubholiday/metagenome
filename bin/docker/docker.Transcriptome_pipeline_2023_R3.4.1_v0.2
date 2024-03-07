@@ -1,0 +1,7 @@
+FROM anno001/transcriptome_pipeline_2023_r3.4.1:v0.1
+LABEL author="zhangyang"
+USER root
+ADD adegraphics /software/conda/envs/Transcriptome_pipeline_2023_R3.4.1/lib/R/library/adegraphics
+ADD FactoMineR /software/conda/envs/Transcriptome_pipeline_2023_R3.4.1/lib/R/library/FactoMineR
+ADD sp /software/conda/envs/Transcriptome_pipeline_2023_R3.4.1/lib/R/library/sp
+USER test_user

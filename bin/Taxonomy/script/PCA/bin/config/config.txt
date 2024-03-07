@@ -1,0 +1,4 @@
+###############################################参数 变量############################################################
+Rscript=Rscript
+PERL=perl
+generate_WebReport=/oss/sys/tool/public_tools/Web-report/generate_WebReport.pl

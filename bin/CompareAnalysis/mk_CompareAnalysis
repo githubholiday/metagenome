@@ -1,0 +1,93 @@
+makefile_dir=$(dir $(firstword $(MAKEFILE_LIST)))
+makefile_name=$(notdir $(firstword $(MAKEFILE_LIST)))
+script=$(makefile_dir)/script/
+
+ifdef config
+	include $(config)
+else 
+	include $(makefile_dir)/config/config.txt
+endif
+
+
+HELP:
+	@echo Description: 
+	@echo Program: mk_CompareAnalysis
+	@echo Version: v1.0.0
+	@echo Contactor: yangzhang@genome.cn
+	@echo Usage:"用于微生物的比较分析，包括anosim adonis MRPP"
+	@echo -e "\t" "make -f $(makefile_name) qiimeFile= groupFile= cmpFile= type= outdir= config= anosim adonis MRPP"
+	@echo 参数说明：
+	@echo -e "\t" "config: [文件|可选]  模块配置文件，和软件相关参数，默认为$(makefile_dir)/config/config.txt "
+	@echo -e "\t" "qiimeFile: [文件|必需]  输入文件，物种丰度文件/表达量文件，例如：merge.qiime.xls、otu.xls"
+	@echo -e "\t" "groupFile: [文件|必需]  cmp.list, 要求有两列，tab分隔，Sample和Group，大小写需要符合 "
+	@echo -e "\t" "cmpFile: [文件|必需]  输入文件，比较组合文件，如果是两两比较，则用tab分隔两列即可；如果是三组及以上，需要给组名 tab A B C D，用空格分隔多组，可参考test/input/cmpM.txt"
+	@echo -e "\t" "type: [字符|必需]  与cmpFile配套使用，如果是两两比较，则给2，如果是3个及以上，则给3 "
+	@echo -e "\t" "outdir: [路径|必需]  分析结果输出路径 "
+
+.PHONY:anosim
+anosim:
+	@echo "===================== Run correct Begin at `date` ===================== "
+	mkdir -p $(outdir)/ && echo "dir ok"
+	if [ -s $(cmpFile) ] ;\
+	then \
+		$(RSCRIPT) $(script)/anosim.r -i $(qiimeFile) -o $(outdir) -g $(groupFile) -c $(cmpFile) -t $(type) && \
+		cd $(outdir) && for i in `ls *.pdf`; do $(CONVERT) $$i `basename $$i .pdf`.png ;done ;\
+	else \
+		echo =========== your $(cmpFile) is empty,so will not analysis ============ ;\
+	fi
+	@echo "===================== Run correct End at `date` ===================== "
+
+.PHONY:adonis
+adonis:
+	@echo "===================== Run correct Begin at `date` ===================== "
+	mkdir -p $(outdir)/ && echo "dir ok"
+	if [ -s $(cmpFile) ] ;\
+	then \
+		$(RSCRIPT) $(script)/adonis.r  $(qiimeFile)  $(groupFile)  $(cmpFile) $(outdir) $(type) && \
+		cd $(outdir) && for i in `ls *.pdf`; do $(CONVERT) $$i `basename $$i .pdf`.png ;done ;\
+	else \
+		echo =========== your $(cmpFile) is empty,so will not analysis ============ ;\
+	fi
+	@echo "===================== Run correct End at `date` ===================== "
+
+.PHONY:MRPP
+MRPP:
+	@echo "===================== Run correct Begin at `date` ===================== "
+	mkdir -p $(outdir)/ && echo "dir ok"
+	if [ -s $(cmpFile) ] ;\
+	then \
+		$(RSCRIPT) $(script)/mrpp.r  $(qiimeFile)  $(groupFile)  $(cmpFile) $(outdir) $(type) && \
+		cd $(outdir) && for i in `ls *.pdf`; do $(CONVERT) $$i `basename $$i .pdf`.png ;done ;\
+	else \
+		echo =========== your $(cmpFile) is empty,so will not analysis ============ ;\
+	fi
+	@echo "===================== Run correct End at `date` ===================== "
+
+.PHONY:combine
+combine:
+	@echo "===================== Run combine Begin at `date` ===================== "
+	rm -rf $(outdir)/anosim.stat.xls $(outdir)/mrpp.stat.xls $(outdir)/adonis.stat.xls
+	if [[ -f $(outdir)/anosim.stat.2.xls ]] && [[ -f $(outdir)/anosim.stat.3.xls ]] ;\
+	then \
+		cat $(outdir)/anosim.stat.2.xls > $(outdir)/anosim.stat.xls ;\
+		sed 1d $(outdir)/anosim.stat.3.xls >> $(outdir)/anosim.stat.xls ;\
+	else \
+		ln -sf $(outdir)/anosim.stat.*.xls $(outdir)/anosim.stat.xls ;\
+	fi
+	if [[ -f $(outdir)/adonis.stat.2.xls ]] && [[ -f $(outdir)/adonis.stat.3.xls ]] ;\
+	then \
+		cat $(outdir)/adonis.stat.2.xls > $(outdir)/adonis.stat.xls ;\
+		sed 1d $(outdir)/adonis.stat.3.xls >> $(outdir)/adonis.stat.xls ;\
+	else \
+		ln -sf $(outdir)/adonis.stat.*.xls $(outdir)/adonis.stat.xls ;\
+	fi
+	if [[ -f $(outdir)/mrpp.stat.2.xls ]] && [[ -f $(outdir)/mrpp.stat.3.xls ]] ;\
+	then \
+		cat $(outdir)/mrpp.stat.2.xls > $(outdir)/mrpp.stat.xls ;\
+		sed 1d $(outdir)/mrpp.stat.3.xls >> $(outdir)/mrpp.stat.xls ;\
+	else \
+		ln -sf $(outdir)/mrpp.stat.*.xls $(outdir)/mrpp.stat.xls ;\
+	fi
+	cd $(outdir) && find . -xtype l |xargs rm -rf 
+	@echo "===================== Run combine End at `date` ===================== "
+

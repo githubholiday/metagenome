@@ -1,0 +1,51 @@
+结果目录：
+|-- result
+|   |-- PCA.3d.pdf
+|   |-- PCA.3d.png
+|   |-- PCA_individual_dim1_dim2.pdf
+|   |-- PCA_individual_dim1_dim2.png
+|   |-- PCA_summary.xls
+|   |-- PCA_variable_dim1-dim2.pdf
+|   |-- PCA_variable_dim1-dim2.png
+|   |-- ReadMe.doc
+|   |-- Sample_coordinate.xls
+|   |-- demo
+|   |-- Varable_gene_contrib.xls
+|   `-- Variable_gene_cos2.xls
+
+结果文件说明：
+
+demo目录存放结果文件前10行作为报告展示的示例文件
+
+1）PCA_summary.xls：PCA分析各主成分信息；
+- Comp：维度/主成分编号 ；
+- eigenvalue: 主成分特征值，该值越大，对应主成分解释度越高；
+- percentage of variance: 主成分对变量的解释度；
+- cumulative percentage of variance: 主成分对变量的累计解释度。
+
+2）Sample_coordinate.xls：样本在各主成分维度的坐标信息；
+- Sample：样本信息； 
+- Dim*:维度/主成分编号；
+- 表格数字：样本在对应维度的坐标信息。
+
+3）Variable_gene_cos2.xls：维度/主成分对某一变量（基因）的解释度；
+- Variable：变量（基因）信息；
+- Dim*：维度/主成分编号；
+- 表格数字：对应维度对对应变量（基因）的解释度；（单位为：1）
+
+4）Varable_gene_contrib.xls：变量(基因)对维度/主成分的贡献值；
+- Variable: 变量（基因）信息；
+- Dim*：维度/主成分编号；
+- 表格数字：对应变量（基因）对对应维度的贡献值；（单位为：%）
+
+5）PCA_individual_dim1_dim2.pdf：样本在2个维度/主成分的分布图；
+横纵坐标分别表示第一维度（主成分）和第二维度（主成分），括号内是主成分的解释度百分比。
+不同组别样本以不同标记在图片中展现。图片中，小图标表示原样品，对应的同色同形大图标指示该组别的"中心位置"。
+
+6）PCA_variable_dim1-dim2.pdf：变量（基因）在2个维度/主成分的分布图；
+横纵坐标分别表示第一维度（主成分）和第二维度（主成分），括号内是主成分的解释度百分比。
+图片中legend数字表示解释度分比，不同解释度对应不同颜色；
+本图片仅选取第一维度（主成分）和第二维度（第二主成分）对变量（基因）解释度和最高的前20个变量（基因），依据变量（基因）在不同维度（主成分）的解释度绘制坐标图。
+
+7）PCA.3d.pdf：样本在3个维度/主成分的分布图；
+根据样本在3个维度的坐标信息绘制的三维图，同一分组样本以相同颜色标记。

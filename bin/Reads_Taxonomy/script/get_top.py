@@ -1,0 +1,104 @@
+import sys
+import argparse
+import os
+
+__author__ = "liaorui"
+__mail__ = "ruiliao@genome.cn"
+
+def get_dic(file1):
+	dic = {}
+	spec = {}
+	with open(file1,'r') as infile:
+		for line in infile:
+			if line.startswith("Sample"):continue
+			tmp = line.strip().split("\t")
+			dic[tmp[0].split("|")[-1]] = int(tmp[1])
+	infile.close()
+	return dic
+
+def get_top(dic,top,spec):
+	top_dic = {}
+	species = []
+	for i in dic.keys():
+		if spec in i:
+			top_dic[i] = dic[i]
+	if top==0:
+		top_list = list(top_dic.values())
+	else:
+		top_list = sorted(list(top_dic.values()),reverse=True)[1:top]
+	for j in top_list:
+		species.append(list(top_dic.keys())[list(top_dic.values()).index(j)])
+	return species
+
+def common_dic(dic,species,out,sample,tax):
+	cout_dic = {}
+	top_dic = []
+	if tax != "Domain":
+		with open(out,'w') as out1:
+			out1.write(tax+"\t"+"\t".join(sample)+"\n")
+			for i in species:
+				cout = []
+				for j in sample:
+#					index_name = [x for x in list(dic.keys()) if j in x][0]
+					index_name = [x for x in list(dic.keys()) if j == x.split(".")[0]][0]
+					if i in dic[index_name].keys():
+						cout.append(str(dic[index_name][i]))
+					else:
+						cout.append("0")
+#			if np.var(list(map(float,cout))) == 0 and max(list(map(float,cout))) == 0:continue
+				out1.write(i+"\t"+"\t".join(cout)+"\n")
+		out1.close()
+
+def get_spenum(dic,species,out,sample,spe):
+	cout = []
+	for j in sample:
+		index_name = [x for x in list(dic.keys()) if j in x][0]
+		cout_num = []
+		for i in dic[index_name].keys():
+			if species in i:
+				cout_num.append(i)
+		cout.append(str(len(set(cout_num))))
+	out.write(spe+"\t"+"\t".join(cout)+"\n")
+
+def main():
+	parser=argparse.ArgumentParser(description=__doc__,
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+		epilog='author:\t{0}\nmail:\t{1}'.format(__author__,__mail__))
+	parser.add_argument('-i','--input',help='the input file of braken report,required ',dest='input',nargs='+',required=True)
+	
+#	parser.add_argument('-t','--top',help='top number',dest='top',required=True)
+	parser.add_argument('-c','--class',help='class of species,choose from ["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"]',dest='cla',required=False)
+	parser.add_argument('-o','--outfile',help='output file,norequired',dest='outfile',required=True)
+#	parser.add_argument('-p','--prefix',help='prefix of the output',dest='prefix',required=True)
+	args=parser.parse_args()
+
+	all_dic = {}
+#	all_species = {}
+#	species = []
+	tax_dic = ['d_','p_','c_','o_','f_','g_','s_']
+	tax_name = ["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+	if args.cla:
+		tax_dic = [tax_dic[tax_name.index(args.cla)]]
+		tax_name = [args.cla]
+	sample = []
+	for i in args.input:
+		file_name = os.path.basename(i)
+		sample.append(file_name.split(".")[0])
+		all_dic[file_name] = get_dic(i)
+#		species.extend(list(all_dic[file_name].keys()))
+#		for j in tax_dic:
+#			if j in all_species.keys():
+#				all_species[j].extend(get_top(all_dic[file_name],int(args.top),j))
+#			else:
+#				all_species[j] = get_top(all_dic[file_name],int(args.top),j)
+	all_sample_stat = args.outfile
+	with open(all_sample_stat,'w') as out:
+		out.write("Sample\t"+"\t".join(sample)+"\n")
+		for i in range(len(tax_dic)):
+#			species = set(all_species[tax_dic[i]])
+#			top_file = "{0}/{1}_{2}_{3}_{4}_top.xls".format(args.outdir,args.prefix,str(i),tax_name[i],str(args.top)) #1_Phylum_35_top.xls
+#			common_dic(all_dic,species,top_file,sample,tax_name[i])
+			get_spenum(all_dic,tax_dic[i],out,sample,tax_name[i])
+
+if __name__ == "__main__":
+	main()

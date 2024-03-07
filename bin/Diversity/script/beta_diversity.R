@@ -1,0 +1,5 @@
+library(vegan)
+data<- read.table(args[1],row.name=1,head=T,sep="\t")
+bray <- vegdist(data,method = "bray")
+bray <- as.matrix(bray)
+write.table(bray,args[2],sep = "\t")

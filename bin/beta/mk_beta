@@ -1,0 +1,73 @@
+makefile_dir=$(dir $(abspath $(firstword $(MAKEFILE_LIST))))
+makefile_name=$(notdir $(firstword $(MAKEFILE_LIST)))
+script=$(makefile_dir)/script/
+
+ifdef config
+	include $(config)
+else 
+	include $(makefile_dir)/config/config.txt
+endif
+
+
+HELP:
+	@echo Description:该脚本用于物种多样性的Beta分析的内容 
+	@echo Program: mk_beta
+	@echo Version: v1.0.0
+	@echo Contactor: yangzhang@genome.cn
+	@echo Usage:
+	@echo -e "\t" Beta_qiime: 使用qiime计算beta多样性
+	@echo -e "\t" NMDS:做NMDS分析
+	@echo -e "\t" PCA:PCA分析
+	@echo -e "\t" PCoA:PCoA分析
+	@echo -e "\n" Usage-Beta_qiime:
+	@echo -e "\t" make -f $(file) config= qza_file= method= outdir= Beta_qiime
+	@echo -e "\t"参数说明:
+	@echo -e "\t" "config: [文件|可选]模块配置文件，和软件相关参数，默认为$(makefile_dir)/config/config.txt "
+	@echo -e "\t" "qza_file: [文件|必需]所有样本物种丰度qza文件"
+	@echo -e "\t" "method: [字符|必需]beta距离计算方法,可选[braycurtis,jaccard]"
+	@echo -e "\t" "outdir: [目录|必需]输出目录，输出目录下输出 beta_qiime_$(method).xls,beta_qiime_$(method).heatmap.pdf,beta_qiime_$(method).heatmap.png"
+	@echo -e "\n"Usage-NMDS/PCA/PCoA:
+	@echo -e "\t" make -f $(file) config= infile= cmp= outdir= prefix= method= NMDS
+	@echo -e "\t"参数说明:
+	@echo -e "\t" "config: [文件|可选]模块配置文件，和软件相关参数，默认为$(makefile_dir)/config/config.txt "
+	@echo -e "\t" "infile: [文件|必需]所有样本物种丰度合并文件"
+	@echo -e "\t" "cmp: [字符|必需]样本和组对应关系文件,第一列为样本(Sample),第二列为组名(Group),表头字母大小写也要一致"
+	@echo -e "\t" "outdir: [目录|必需]输出目录,输出目录下输出图、坐标文件、特征值文件"
+	@echo -e "\t" "prefix: [文件|必需]输出文件前缀，prefix.pdf,prefix.png"
+	@echo -e "\t" "method: [文件|必需]beta距离计算方法,可选[bray,jaccard]"
+
+
+Beta_qiime:
+	@echo "===================== Run Beta_qiime Begin at `date` ===================== "
+	mkdir -p $(outdir)/tmp/$(method)
+	$(QIIME2) diversity beta --i-table $(qza_file) --p-metric $(method) --o-distance-matrix $(outdir)/beta_qiime_$(method).qza
+	$(QIIME2) tools export --input-path $(outdir)/beta_qiime_$(method).qza --output-path $(outdir)/tmp/$(method)
+	$(PYTHON3) $(script)/retain_float.py -i $(outdir)/tmp/$(method)/distance-matrix.tsv -o $(outdir)/beta_qiime_$(method).xls
+	$(QIIME2_DIR)/Rscript $(script)/draw_heat.r $(outdir)/tmp/$(method)/distance-matrix.tsv $(outdir)/beta_qiime_$(method).heatmap.pdf
+	$(CONVERT) $(outdir)/beta_qiime_$(method).heatmap.pdf $(outdir)/beta_qiime_$(method).heatmap.png
+	@echo "===================== Run Beta_qiime End at `date` ===================== "
+
+.PHONY:NMDS
+NMDS:
+	@echo "===================== Run NMDS Begin at `date` ===================== "
+	mkdir -p $(outdir)
+	$(RSCRIPT) $(script)/nmds.r $(infile) $(cmp) $(outdir) $(prefix) $(method)
+	cd $(outdir)/ && for i in `ls *pdf`;do $(CONVERT) $$i `basename $$i .pdf`.png;done || echo no pdf in $(outdir)
+	@echo "===================== Run NMDS End at `date` ===================== "
+
+.PHONY:PCA
+PCA:
+	@echo "===================== Run PCA Begin at `date` ===================== "
+	mkdir -p $(outdir)
+	$(RSCRIPT_pca) $(script)/pca.r $(infile) $(cmp) $(outdir) TRUE $(prefix)
+	cd $(outdir)/ && for i in `ls *pdf`;do $(CONVERT) $$i `basename $$i .pdf`.png;done || echo no pdf in $(outdir)
+	@echo "===================== Run PCA End at `date` ===================== "
+
+.PHONY:PCoA
+PCoA:
+	@echo "===================== Run PCoA Begin at `date` ===================== "
+	mkdir -p $(outdir)
+	$(RSCRIPT) $(script)/PCoA.r -i $(infile) -c $(cmp) -m $(method) -p $(prefix) -o $(outdir) 
+	cd $(outdir)/ && for i in `ls *pdf`;do $(CONVERT) $$i `basename $$i .pdf`.png;done || echo no pdf in $(outdir)
+	@echo "===================== Run PCoA End at `date` ===================== "
+

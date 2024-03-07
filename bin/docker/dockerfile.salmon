@@ -1,0 +1,5 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+RUN mamba install -y -c bioconda -c conda-forge salmon=1.10.2
+USER test_user

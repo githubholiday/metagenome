@@ -1,0 +1,12 @@
+分析内容	软件	使用版本	参数设置
+比对分析	BWA	0.7.15	mem算法
+基于Reads注释	Kraken2	2.0.7	默认参数
+组装分析	MEGAHIT	v1.2.9	默认参数
+分箱	MetaBAT2	2.12.1	默认参数
+分箱结果评估	checkM	v1.1.3	-t 4 -x fa
+基因功能注释	BLAST	2.2.28	-evalue 1e-5 -num_alignments 5 -num_threads 4 -outfmt '6 std stitle'
+基因功能注释	DIOMAND	v0.9.14.115	--outfmt 6 --sensitive --threads 5 --evalue 1e-5
+基因预测	MetaGeneMark	v.3.38	-r -a -d -f G
+非冗余基因	MMseqs2	2-13.45111	min-seq-id 0.5 -c 0.8 --cov-mode 1 --threads 8
+Alpha/Beta多样性	QIIME	2021.4.0	默认参数
+差异分析	LEfSe	1.1.01	默认参数

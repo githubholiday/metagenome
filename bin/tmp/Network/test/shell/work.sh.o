@@ -1,0 +1,7 @@
+===================== Run network Begin at 2023年 05月 11日 星期四 10:21:24 CST ===================== 
+[ -d /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network/test/output ] || mkdir -p /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network/test/output/ && echo "dir ok"
+dir ok
+/annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/miniconda3/envs/amplified_pipeline/bin/Rscript /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network//script//network.r -i /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network/test/input/data.xls -t 0 -p /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network/test/output/Network.edge.csv -o /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network/test/output/Network.pdf 
+null device 
+          1 
+cd /annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/module/r-16s/Network/test/output && for i in `ls *.pdf`; do /usr/local/bin/convert $i `basename $i .pdf`.png ;done

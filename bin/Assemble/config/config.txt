@@ -1,0 +1,6 @@
+MEGAHIT=/annoroad/data1/software/install/Miniconda-2023/envs/megahit/bin/megahit
+megahit_para=--k-min 35 --k-max 95 --k-step 6 -m 40000000000 -t 12
+PERL=/annoroad/data1/software/bin/miniconda/envs/Transcriptome_pipeline_2023_2/bin/perl
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+CONVERT=/usr/local/bin/convert
+RSCRIPT=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_amplified/bin/Rscript

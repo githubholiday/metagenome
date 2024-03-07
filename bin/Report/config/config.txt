@@ -1,0 +1,4 @@
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+get_upload=/annoroad/data1/software/install/tools/generate_upload/get_upload.py
+report_py=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/Public/Pipeline/Stable/Public/Report/Report_local/current/Public_webreport//Report.py
+TRANSPOSE=/annoroad/data1/software/install/transpose-2.0/src/transpose -t -l 10000x10000

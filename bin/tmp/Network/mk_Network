@@ -1,0 +1,34 @@
+makefile_dir=$(dir $(firstword $(MAKEFILE_LIST)))
+makefile_name=$(notdir $(firstword $(MAKEFILE_LIST)))
+script=$(makefile_dir)/script/
+
+ifdef software
+	include $(software)
+else 
+	include $(makefile_dir)/software/software.txt
+endif
+
+
+HELP:
+	@echo Description: Network分析
+	@echo Program: mk_Network
+	@echo Version: v1.0.0
+	@echo Contactor: yangzhang@genome.cn
+	@echo Usage:
+	@echo -e "\t" "make -f $(makefile_name) infile= threshold= outfile1= outfile2= outdir= software= Network"
+	@echo 参数说明：
+	@echo -e "\t" "software: [文件|可选]  模块配置文件，和软件相关参数，默认为$(makefile_dir)/software/software.txt "
+	@echo -e "\t" "infile: [文件|必需]  输入文件，物种丰度文件，如merge.qiime.xls，列为样本，行为物种名称，值为丰度"
+	@echo -e "\t" "threshold: [字符|可选]  筛选阈值，默认0.6"
+	@echo -e "\t" "outfile1: [文件|必需]  输出文件，Network.edge.csv, 网络图的边结果"
+	@echo -e "\t" "outfile2: [文件|必需]  输出文件，Network.pdf, 网络图"
+	@echo -e "\t" "outdir: [路径|必需]   输出路径"
+
+.PHONY:Network
+threshold=0.6
+Network:
+	@echo "===================== Run network Begin at `date` ===================== "
+	[ -d $(outdir) ] || mkdir -p $(outdir)/ && echo "dir ok"
+	$(Rscript) $(script)/network.r -i $(infile) -t $(threshold) -p $(outdir)/$(outfile1) -o $(outdir)/$(outfile2) 
+		cd $(outdir) && for i in `ls *.pdf`; do $(CONVERT) $$i `basename $$i .pdf`.png ;done
+	@echo "===================== Run network End at `date` ===================== "

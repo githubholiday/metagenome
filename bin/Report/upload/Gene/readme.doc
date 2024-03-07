@@ -1,0 +1,36 @@
+该目录下为基因预测结果。
+
+All_sample_orf_stat.xls：ORF预测统计表
+（1）Sample：样本名称；
+（2）ORFs：预测到的基因数量。
+
+gene_boxplot.p*：组间基因数目差异箱线图（每个比较组中有至少3个样本才有该部分分析结果）
+横坐标为样本分组；纵坐标为该分组对应的基因数目。
+
+non-redundant_gene.nucleotide_length_dis.p*：非冗余基因序列长度分布图
+横坐标为contigs长度（bp），其中横坐标最大为2000bp，超过2000bp的序列按照2000bp进行统计，纵坐标（Frequency）为contigs的数目。
+
+non-redundant_gene.xls：非冗余基因统计表
+（1）Seq_Num:总的基因的数目；
+（2）Total_Len:基因的总长度；
+（3）Mean_Len ：基因的平均长度；
+（4）Min_Len ：最短基因的长度；
+（5）Min_ID ：最短基因的ID编号；
+（6）Max_Len：最长基因的长度；
+（7）Max_ID：最长基因的ID编号；
+（8）GC_content：所有基因的GC含量；
+（9）N_Content：所有基因的N含量。
+
+
+TPM.all.xls：
+（1）gene：基因名；
+（2）从第二列开始为各个样品对应基因的丰度（TPM值）。
+
+TPM.cor.p*：基因丰度样品间相关性
+横纵坐标为各个样品，其中不同颜色代表spearman相关系数的高低，颜色越红则表示相关系数越高，颜色越蓝表示相关系数越低，对应数值也在格子中进行显示。
+
+non-redundant_gene.nucleotide_rep_seq.fasta：
+非冗余基因序列
+non-redundant_gene.final.pro.fasta：
+非冗余基因的蛋白序列
+

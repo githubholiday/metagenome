@@ -1,0 +1,6 @@
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+PERL=/annoroad/data1/software/bin/miniconda/envs/Transcriptome_pipeline_2023_2/bin/perl
+CSVTK=/annoroad/data1/software/bin/miniconda/envs/TGS_16s_pbtools/bin/csvtk
+CONVERT=/usr/local/bin/convert
+RSCRIPT=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_amplified/bin/Rscript
+QIIME2=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/qiime2-2023.2/bin/

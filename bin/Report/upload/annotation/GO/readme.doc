@@ -1,0 +1,10 @@
+Gene_All.GO.TPM.xls：
+（1）Ontology：GO一级分类；
+（2）Term_name：GO注释信息；
+（3）Accession：GO中的ID号；
+（4）Gene：基因预测的编号；
+（5）其余：各样本的TPM值。
+
+Gene_All.GO.TPM.Summary.Term_name.xls：
+将Gene_All.GO.TPM.xls按照Term_name列合并其余列，其中如果是TPM值的列，则在合并时加和；如果是描述性信息，则在合并时用逗号隔开。
+后续的差异分析、比较分析、β多样性分析均是依据此Summary文件。

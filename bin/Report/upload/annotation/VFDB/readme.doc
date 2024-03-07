@@ -1,0 +1,12 @@
+Gene_All.VFDB.TPM.xls：
+（1）Gene_ID：基因预测的编号；
+（2）VF_ID：VFDB数据库中参考序列的编号；
+（3）VF_category_level1：VFDB数据库中的一级分类；
+（4）VF_category_id：一级分类对应的ID号；
+（5）VF_taxonomy：VF来源物种；
+（6）Function：VF的作用；
+（7）其余：各样本的TPM值。
+
+Gene_All.VFDB.TPM.Summary.VF_category_level1.xls：
+将Gene_All.VFDB.TPM.xls按照VF_category_level1列合并其余列，其中如果是TPM值的列，则在合并时加和；如果是描述性信息，则在合并时用逗号隔开。
+后续的差异分析、比较分析、β多样性分析均是依据此Summary文件。

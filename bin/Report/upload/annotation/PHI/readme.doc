@@ -1,0 +1,9 @@
+Gene_All.PHI.TPM.xls：
+（1）Gene_ID：基因预测的编号；
+（2）PHI_ID：PHI数据库中参考序列的编号；
+（3）PHI_Affection：PHI数据库中注释描述信息；
+（4）其余：各样本的TPM值。
+
+Gene_All.PHI.TPM.Summary.PHI_ID.xls：
+将Gene_All.PHI.TPM.xls按照PHI_ID列合并其余列，其中如果是TPM值的列，则在合并时加和；如果是描述性信息，则在合并时用逗号隔开。
+后续的差异分析、比较分析、β多样性分析均是依据此Summary文件。

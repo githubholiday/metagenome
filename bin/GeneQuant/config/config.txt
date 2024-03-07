@@ -1,0 +1,5 @@
+SALMON=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_salmon/bin/salmon
+PERL=/annoroad/data1/software/bin/miniconda/envs/Transcriptome_pipeline_2023_2/bin/perl
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+RSCRIPT=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_amplified/bin/Rscript
+CONVERT=/usr/local/bin/convert

@@ -1,0 +1,14 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+RUN mamba install -y -c bioconda -c conda-forge blast
+RUN mamba install -y -c bioconda -c conda-forge samtools
+RUN mamba install -y -c bioconda -c conda-forge fqtools
+RUN mamba install -y -c bioconda -c conda-forge csvtk
+RUN mamba install -y -c bioconda -c conda-forge gtdbtk
+RUN mamba install -y -c bioconda -c conda-forge bam2fasta
+RUN mamba install -y -c yuxiang bam2fastq
+RUN mamba install -y -c bioconda -c conda-forge diamond
+RUN mamba install -y -c molinerislab transpose
+
+USER test_user

@@ -1,0 +1,9 @@
+1. KEGG_classificate.xls 基因KEGG注释分类结果
+	（1）Class：KEGG分类的标签；
+	（2）Classification：KEGG分类的名称；
+	（3）Group：KEGG注释所属的组；
+	（4）Value：该组包含基因的个数；
+	（5）Percent：占所有注释到KEGG基因总数的百分比。
+
+2. KEGG_classificate.p* 根据上述文件作出的统计图。
+	条形图上的数字代表注释上的基因数目，横坐标代表某通路基因占全部注释到基因的百分比，纵坐标为KEGG二级分类条目名称，不同颜色代表不同一级分类。图中分类说明如下，A：Cellular Processes B：Environmental Information Processing C：Genetic Information Processing D：Human Diseases E：Metabolism F：Organismal Systems。

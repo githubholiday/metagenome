@@ -1,0 +1,6 @@
+#PYTHON3=/annoroad/share/software/install/Python-3.3.2/bin/python3
+#PYTHON3=python3
+#下面这个软件是203和202通用的python
+#PYTHON3=/annoroad/data1/software/install/Miniconda-2023/bin/python3.7
+# 238的python
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3

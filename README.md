@@ -1,2 +1,4 @@
-# metagenome
-metagenome for third and second sequencing
+# NGS_Metagenome
+流程名：二代宏基因组流程
+适用范围：二代、宏基因组、样本类型不限，有无宿主均可。
+

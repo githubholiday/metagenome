@@ -1,0 +1,7 @@
+该目录下的结果为去除宿主的结果，如果无宿主，该目录下无结果。
+Align_stat.xls:样本比对到宿主基因组的比对统计表。
+（1）Sample：样本名称；
+（2）Total Reads：比对用到的总Reads个数；
+（3）Mapped Host Reads：比对到宿主参考基因组上的Reads个数；
+（4）Mapped Host Rate(%)：比对到宿主参考基因组上的Reads的百分比；
+（5）Unmapped Host Reads：未比对到宿主参考基因组上的Reads个数（即后续进行分析的reads数）。

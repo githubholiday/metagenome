@@ -1,0 +1,82 @@
+.
+├── alpha
+│   ├── alpha_vegan_out.xls
+│   ├── boxplot_ACE_Group1_Group2.pdf
+│   ├── boxplot_ACE_Group1_Group2.png
+│   ├── boxplot_mean.xls
+└── beta
+    ├── beta_qiime_braycurtis.heatmap.pdf
+    ├── beta_qiime_braycurtis.heatmap.png
+    ├── beta_qiime_braycurtis.xls
+    ├── NMDS
+    │   ├── All_NMDS_bray.coordinate.xls
+    │   ├── All_NMDS_bray.pdf
+    │   └── All_NMDS_bray.png
+    ├── PCA
+    │   ├── All_individual_dim1_dim2_ellipses.pdf
+    │   ├── All_individual_dim1_dim2_ellipses.png
+    │   ├── All_PCA_coordinate.xls
+    │   └── All_PCA_summary.xls
+    └── PCoA
+        ├── All_PCoA_bray.coordinate.xls
+        ├── All_PCoA_bray.pdf
+        ├── All_PCoA_bray.png
+        └── All_PCoA_bray.summary.xls
+
+一、alpha：alpha多样性指数结果
+alpha_vegan_out.xls：alpha指数结果
+（1）Sample：样本名称；
+（2）Chao1：Chao1指数是物种数目的衡量标准之一，它考虑3个因素，一是物种数目，二是只有1条序列的物种数目，三是2条序列的物种数目，Chao1指数越大，表明某群落物种数目较多，并且Chao1指数受1条和2条序列的物种影响较大；
+（3）ACE：基于丰度的覆盖估计值（Abundance-based Coverage Estimator, ACE），用于估计群落中含有物种数目的指数，ACE指数越大，表明群落中物种数目越大；
+（4）Pielou：Pielou的均匀度指数（Pielou’s Evenness Index），是最常用的均匀度指数，受到香农指数影响；
+（5）Shannon：香农指数，香农指数值越高，表明群落的α多样性越高，并且该指数计算时受丰度低的物种影响较大；
+（6）Simpson：辛普森指数（Simpson index），Simpson 指数值越大，说明群落多样性越低。辛普森指数在计算时将丰度高的物种设置了较大权重，所以高丰度物种较多时该指数值较大。
+
+boxplot_*.p*：各个指数各个比较组合的boxplot图
+横坐标为分组，纵坐标为对应指数的值，红色点代表该组中的离群值。
+
+boxplot_mean.xls：alpha多样性分析 组内均值结果（去除离群值之后的均值）
+
+二、beta：beta多样性分析结果（此部分结果除PCA不需要计算距离，其他分析内容都需要，选取的算法都是bray curtis算法）
+beta_qiime_braycurtis.heatmap.p*：距离热图
+图中热图颜色越靠近蓝色两个样本的微生物群落差异越小，越靠近红色两个样本微生物群落之间的差异越大。
+beta_qiime_braycurtis.xls：热图作图文件
+
+1. NMDS：全物种水平NMDS分析结果
+1)*NMDS_bray.p*：NMDS图
+图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+2)*NMDS_bray.coordinate.xls 绘制NMDS图的绘图文件
+Sample：样本
+NMDS1：横坐标
+NMDS2：纵坐标
+Group：分组
+
+2. PCA：全物种水平PCA分析结果
+1)*individual_dim1_dim2_ellipses.p*：PCA分析2维图。
+横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+
+2)*PCA_summary.xls：每个主成分的贡献度统计表
+Comp：主成分
+eigenvalue：特征值
+percentage of variance：该主成分的贡献度（百分比）
+cumulative percentage of variance：第三列的累计值（百分比）
+
+3)*PCA_coordinate.xls：主成分的坐标文件
+Dim.1~Dim.5：分别代表第1到第5主成分
+
+3. PCoA：全物种水平PCoA分析结果
+1）*PCoA_bray.summary.xls：每个主坐标的贡献度统计表（距离矩阵获得方法：braycurtis）
+Axis：主坐标
+eigenvalue：特征值
+percentage of variance：该主坐标的贡献度（百分比）
+cumulative percentage of variance：第三列的累计值（百分比）
+
+2)*PCoA_bray.coordinate.xls：主坐标的坐标文件（距离矩阵获得方法：braycurtis）
+Sample：样本
+Dim.1：第一主坐标
+Dim.2：第二主坐标
+Group：分组
+
+3)*PCoA_bray.p*:PCoA分析的2维图（距离矩阵获得方法：braycurtis）
+横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+

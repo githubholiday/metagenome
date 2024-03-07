@@ -1,0 +1,53 @@
+library(ggplot2)
+library(ggsci)
+colors=c(pal_aaas("default", alpha = 0.8)(10),pal_lancet("lanonc", alpha = 0.8)(9),pal_nejm("default", alpha = 0.8)(8),pal_jama("default", alpha = 0.8)(7),pal_jco("default", alpha = 0.8)(10))
+
+draw = function(titles,name,outdir,group_len,data){
+	for (i in titles){
+	p = ggplot(data, aes(x=Group, y=data[,i],color=Group)) + 
+  geom_boxplot(outlier.color="red", outlier.shape=7,outlier.size=6)+
+  scale_color_manual(values=colors[1:group_len])+
+    theme_bw() + 
+  theme(legend.position="right",plot.title = element_text(hjust = 0.5))+
+  labs(title=i,x="Group", y = "")+
+  geom_dotplot(binaxis='y', stackdir='center', stackratio=1.5, dotsize=1.2)
+	ggsave(p,file=paste(outdir,"/boxplot_",i,"_",name,".pdf",sep=""))
+	}
+}
+
+args <- commandArgs(TRUE)
+infile <- args[1]
+group <- args[2]
+cmp <- args[3]
+outdir <- args[4]
+type <- args[5]
+
+dat <- read.table(infile,header=T,sep="\t")
+group <- read.table(group,header=T,sep="\t")
+cmp <- read.table(cmp,sep="\t")
+titles = c("ACE","Chao1","Pielou","Shannon","Simpson")
+if (type == 2){
+	for (i in 1:nrow(cmp)){
+		name <- paste(cmp[i,1],cmp[i,2],sep="_")
+		group_new <- group[group$Group %in% cmp[i,],]
+		print(group_new)
+		data <- merge(group_new,dat,by="Sample")
+		data$Group <- as.factor(data$Group)
+		group_len <- 2
+		print(data)
+		draw(titles,name,outdir,group_len,data)
+		}
+}else if (type == 3){
+	for (i in 1:nrow(cmp)){
+		name <- cmp[i,1]
+		tmp <- strsplit(cmp[i,2]," ")[[1]]
+		group_new <- group[group$Group %in% tmp,]
+		print(group_new)
+		data <- merge(group_new,dat,by="Sample")
+		data$Group <- as.factor(data$Group)
+		group_len <- length(unique(data$Group))
+		print(data)
+		draw(titles,name,outdir,group_len,data)
+	}
+}
+

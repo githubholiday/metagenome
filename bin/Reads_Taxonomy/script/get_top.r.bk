@@ -1,0 +1,57 @@
+#!/annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/miniconda3/envs/amplified_pipeline/bin/Rscript  
+#作者：张阳
+#邮箱：yangzhang@genome.cn
+#时间：2023年11月09日 星期四 15时50分49秒
+#版本：v0.0.1
+#用途：
+
+get_percent_top <- function(otu){
+    percent_otu <- apply(otu, 2, function(x) x/sum(x))
+    percent_otu <- as.data.frame(percent_otu)
+    percent_otu$Sum <- as.vector(apply(percent_otu, 1, sum))
+    percent_otu_top <- percent_otu[order(percent_otu$Sum, decreasing=T),][1:top,1:(ncol(percent_otu)-1)]
+    Others <- 1 - as.vector(apply(percent_otu_top, 2, sum))
+    Others <- t(as.data.frame(Others))
+    colnames(Others) <- colnames(percent_otu_top)
+    dat <- rbind(percent_otu_top,Others)
+    dat <- data.frame("Species"=rownames(dat),dat)
+    return(dat)
+}
+
+
+args<-commandArgs(TRUE)
+otu <- args[1]
+outfile <- args[2]
+top <- args[3]
+type <- args[4]
+otu <- read.table(otu, sep="\t", header=T, row.names=1, stringsAsFactors=F)
+otu <- as.data.frame(otu)
+
+if (type == "Group" & length(args) == 5){
+    group <- args[5] # Group Sample
+    group <- read.table(group, sep="\t", header=T, stringsAsFactors=F)
+    group_names <- unique(group$Group)
+    group_data <- otu[,1:length(group_names)]
+    colnames(group_data) <- group_names
+    for (i in group_names){
+        tmp_sample <- group[group$Group %in% i,]$Sample
+        # print(i)
+        # print(tmp_sample)
+        tmp_data <- as.data.frame(otu[,tmp_sample])
+        tmp_sum <- apply(tmp_data,1,sum)
+        group_data[,i] <- tmp_sum
+    }
+    group_percent <- get_percent_top(group_data)
+    write.table(group_percent, outfile, quote=F, sep="\t", row.names=F)
+}else if(type == "Sample" & length(args) == 4){
+    sample_percent <- get_percent_top(otu)
+    write.table(sample_percent, outfile, quote=F, sep="\t", row.names=F)
+}else{
+    print("如果对组求top，需要给的格式：Rscript this.r merge.qiime.xls outfile topNum Group cmp.list")
+    print("                     示例：Rscript this.r merge.qiime.xls richness.xls 20 Group cmp.list")
+    print("如果对单独样本求top，需要给的格式：Rscript this.r merge.qiime.xls outfile topNum Sample")
+    print("                     示例：Rscript this.r merge.qiime.xls richness.xls 20 Group Sample")    
+}
+
+
+    

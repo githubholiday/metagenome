@@ -1,0 +1,5 @@
+RSCRIPT=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_amplified/bin/Rscript
+LEFSE=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_LEfSe/bin
+lefse_conda=/annoroad/data1/software/bin/miniconda/bin/activate LEfSe
+CONVERT=/usr/local/bin/convert
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3

@@ -1,0 +1,39 @@
+makefile_dir=$(dir $(firstword $(MAKEFILE_LIST)))
+makefile_name=$(notdir $(firstword $(MAKEFILE_LIST)))
+script=$(makefile_dir)/script/
+
+ifdef software
+	include $(software)
+else 
+	include $(makefile_dir)/software/software.txt
+endif
+
+
+HELP:
+	@echo Description: RDA/CCA分析
+	@echo Program: mk_RDA_CCA
+	@echo Version: v1.0.0
+	@echo Contactor: yangzhang@genome.cn
+	@echo Usage:
+	@echo -e "\t" "make -f $(makefile_name) infile= cmp= envir= outfile1= outfile2= outfile3= outdir= software= RDA_CCA"
+	@echo 参数说明：
+	@echo -e "\t" "software: [文件|可选]  模块配置文件，和软件相关参数，默认为$(makefile_dir)/software/software.txt "
+	@echo -e "\t" "infile: [文件|必需]  输入文件，物种丰度文件，如merge.qiime.xls，列为样本，行为物种名称，值为丰度"
+	@echo -e "\t" "cmp: [文件|必需]  输入文件，如cmp.list，要求只有两列，tab分隔，第一列为Sample，第二列为Group，大小写也需要符合。"
+	@echo -e "\t" "envir: [文件|必需] 输入文件，如environment.xls , 环境因子测量结果文件，客户提供，列为样本，行为环境因子，值为测量值。环境因子包括ph,N含量,P含量等"
+	@echo -e "\t" "outfile1: [文件|必需]  输出文件，RDA_CCA.coordinate.pdf, RDA/CCA结果图，根据DCA的结果进行选择，只出一种图，会在图里标明是RDA或者CCA"
+	@echo -e "\t" "outfile2: [文件|必需]  输出文件，RDA_CCA.coordinate.sample.xls, RDA/CCA结果图中样本的坐标"
+	@echo -e "\t" "outfile3: [文件|必需]  输出文件，RDA_CCA.coordinate.env.xls, RDA/CCA结果图中环境因子的坐标"
+	@echo -e "\t" "outdir: [路径|必需]   输出路径"
+
+.PHONY:RDA_CCA
+RDA_CCA:
+	@echo "===================== Run PCoA Begin at `date` ===================== "
+	[ -d $(outdir) ] || mkdir -p $(outdir)/ && echo "dir ok"
+	if [ $(envir) ]; then \
+		$(Rscript) $(script)/DCA.r -i $(infile) -c $(cmp) -e $(envir) -p $(outdir)/$(outfile1) -o $(outdir)/$(outfile2) -O $(outdir)/$(outfile3) ;\
+		cd $(outdir) && $(CONVERT) $(outfile1) `basename $(outfile1) .pdf`.png ; \
+		else \
+		echo there is no environment file  so will not do RDA_CCA analysis !!! ; \
+	fi
+	@echo "===================== Run PCoA End at `date` ===================== "

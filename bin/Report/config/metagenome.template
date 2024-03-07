@@ -1,0 +1,1745 @@
+
+Title:$(PROJECT_NAME)
+EmptyLine:40;
+@@@@project_info
+MainMenu: 项目信息
+@@@@background
+SubMenu: 背景介绍
+P:#,;#宏基因组学（Metagenomics）是在微生物基因组学的基础上发展起来的一种研究微生物多样性、开发新的生理活性物质或鉴定新基因的一门组学技术。其主要是指以特定环境中的整个微生物群落作为研究的对象，不需要对微生物进行分离培养，而是提取环境微生物总DNA进行研究，可进行微生物群体的物种分类，复杂度分析，群落结构，功能注释，样品间的物种或基因差异以及物种间的代谢网络研究。可探求微生物与环境或宿主之间的关系，可避开微生物分离培养的过程，扩展微生物资源的利用空间，从而为微生物的研究提供有效工具。
+
+SubMenu: 实验流程
+P:#,;#样品接收后，首先，对提供的DNA或者从提供的样本中抽提的DNA进行纯度、浓度和体积等方面的检测。其次，对检测合格后的样品进行文库制备和文库质检。文库制备即通过提取样品的基因组DNA并随机打断，电泳回收所需长度的DNA片断，并加上接头引物，制备得到所需文库。最后，对质检合格的文库进行上机测序。实验流程如下图：
+Image:upload/public/experiment.png,400,1,实验流程图
+
+SubMenu: 信息分析流程
+P:#,;#高通量测序具有通量大，准确率高，成本低等显著优势，是当今最主流的测序技术。借助NGS测序优势，我们可以从reads、基于contig获取的非冗余基因这两个层面进行样品中的微生物鉴定。同时借助安诺整合的各种微生物相关数据库，可对样品内的微生物进行多维度的功能分析、丰度分析、样品间差异分析，为用户的科研发掘提供强大助力。安诺优达宏基因组信息分析流程图如下所示：
+Image:upload/public/Analysis_Pipeline.png,400,1,宏基因组信息分析流程图
+P:#,;#注：其他个性化分析，需要客户提供分析方案或思路，评估可行后进行分析。
+
+@@@@sample_info
+SubMenu: 样本信息
+P:#,;#为了更加清楚报告中所使用的样本名和最初的样本信息之间的关系，列出样本信息表，如下：
+Table:upload/*QC/sample_info.xls,5,,600,,0,样本信息收集表（部分样本）
+PRE:,,67;
+（1）Sample：客户提供的原始样本名称；
+（2）Description：客户提供的原始样本描述信息：
+（3）Group：样品分组。
+PRE
+
+
+@@@@QC
+MainMenu: 数据预处理
+SubMenu: 原始测序数据
+P:#,;#高通量测序结果最初以原始图像数据文件存在，经序列碱基识别后转化为原始测序序列（Sequenced Reads），我们称之为Raw Data或Raw Reads，其结果以FASTQ（简称为fq）文件格式存储。FASTQ文件包含每条测序序列（Read）的名称、碱基序列以及其对应的测序质量信息。在FASTQ格式文件中，每个碱基对应一个碱基质量字符，每个碱基质量字符对应的ASCII码值减去33（Sanger质量值体系），即为该碱基的测序质量得分（Phred Quality Score）。不同Phred Quality Score代表不同的碱基测序错误率，如Phred Quality Score值为20和30分别表示碱基测序错误率为1%和0.1%。其中FASTQ格式示例如下：
+Image:upload/public/fastq-eg.png,100,1,FASTQ文件格式示例图
+FastqPRE:
+（1）第一行以“@”开头，随后为测序标识别符（Sequence Identifiers）和描述文字（选择性部分）；
+（2）第二行是碱基序列；
+（3）第三行以“+”开头，随后为测序标识别符（选择性部分）；
+（4）第四行是对应碱基的测序质量，该行中每个字符对应的ASCII值减去33，即为对应第二行碱基的测序质量值。
+FastqPRE
+P:#,;#测序得到的某些原始测序序列含有带接头的、低质量的序列，为了保证信息分析质量，必须对原始序列进行过滤，从而得到Clean Reads，后续分析都基于Clean Reads。
+P:#,;#数据处理步骤如下：
+FilterPRE:
+（1）去除接头污染的Reads（Reads中接头污染的碱基数大于5bp。对于双端测序，若一端受到接头污染，则去掉两端的Reads）；
+（2）去除低质量的Reads（Reads中质量值Q≤19的碱基占总碱基的50%以上，对于双端测序，若一端为低质量Reads，则会去掉两端Reads）；
+（3）去除含N比例大于5%的Reads（对于双端测序，若一端含N比例大于5%，则会去掉两端Reads）。
+FilterPRE
+P:#,;#数据过滤统计结果见下表：
+Table:upload/*_QC/STAT_result.xls,,4,800,,0,数据过滤统计分析表
+PRE:,,67;
+（1）Sample：样本名称；
+（2）Raw Reads Number：原始下机序列的总序列数；
+（3）Raw Bases Number：原始下机序列的总序列数；
+（4）Clean Reads Number：过滤后的高质量序列的总序列数；
+（5）Clean Reads Rate(%)：过滤后高质量序列数占原始下机序列数的比例。该值越大，说明测序质量或文库质量越好；
+（6）Clean Bases Number：过滤后的高质量序列的总碱基数；
+（7）Low-quality Reads Number：由于低质量碱基过多，被去掉的序列数；
+（8）Low-quality Reads Rate(%)：由于低质量碱基过多，被去掉的序列数占原始下机序列数的比例；
+（9）Ns Reads Number：由于含N过高，被去掉的序列数；
+（10）Ns Reads Rate(%)：由于含N过高，被去掉的序列数占原始下机序列数的比例；
+（11）Adapter polluted Reads Number：由于测序引物序列污染，被去掉的序列数；
+（12）Adapter polluted Reads Rate(%)：由于测序引物序列污染，被去掉的序列数占原始下机序列数的比例；
+（13）Raw Q30 Bases Rate(%)：在过滤前，原始序列中质量值大于30（错误率小于0.1%）的碱基数占总碱基数的比例；
+（14）Clean Q30 Bases Rate(%)：过滤后，总序列中质量值大于30（错误率小于0.1%）的碱基数的比例。该值越大说明测序质量越好；
+（15）Raw GC percent(%)：过滤前序列中GC碱基所占比例;
+（16）Clean GC percent(%)：过滤后序列中GC碱基所占比例。
+PRE
+P:#,;#过滤统计表下载链接：
+Excel:upload/*_QC/STAT_result.xls,,,过滤统计表下载：;
+
+
+@@@@Alignment
+SubMenu: 比对分析
+P:#,;#由于来自宿主的样本，可能会受到宿主序列的污染，为了使后续的分析更准确，首先要去除宿主序列。利用基因组比对软件BWA，将Clean Reads与宿主参考序列进行比对，将比对到宿主的序列去除。对结果进行统计，如下表：
+Table:upload/*_Host/Align_stat.xls,,4,800,,比对结果的统计表
+PRE:
+（1）Sample：样本名称；
+（2）Total Reads：比对用到的总Reads个数；
+（3）Mapped Host Reads：比对到宿主参考基因组上的Reads个数；
+（4）Mapped Host Rate(%)：比对到宿主参考基因组上的Reads的百分比；
+（5）Unmapped Host Reads：未比对到宿主参考基因组上的Reads个数（即后续进行分析的reads数）。
+PRE
+P:#,;#样品宿主比对结果统计下载链接：
+Excel:upload/*Host/Align_stat.xls,,,比对结果的统计表：;
+
+@@@@Kraken
+MainMenu: 基于Reads物种注释
+@@@@Kraken_Annotation
+SubMenu: 基于Kraken2的Reads注释
+P:#,;#Kraken2是一种超快速、高精准的宏基因组DNA序列分类软件，自2014年发表以来，被引用超过2000余次。其原理大致如下，首先计算获取每个reads的k-mer，并将k-mer和构建好的数据库进行比对，序列中的每个k-mer被映射到数据库中包含该k-mer基因组的最低共同祖先（lowest common ancestor, LCA）。与序列的k-mers相关的分类群以及分类群的祖先形成了一般分类树的修剪子树，用于分类。在分类树中，每个节点的权重等于与节点的分类单元相关联的序列中的k-mer的数量。通过在路径中添加所有权重来对分类树中的每个根到叶（root-to-leaf, RTL）路径进行评分，并且分类树中的最大RTL路径是分类路径（以黄色突出显示的节点）。该分类路径的叶子（分类树中的橙色，最左边的叶子）是用于查询序列的分类。Kraken2原理图如下所示：
+Image:upload/public/kraken2_classification_algorithm.png,400,,Kraken2原理图
+P:#,;#本次使用的数据库为kraken2官方数据库minikraken2_v1_8GB（ftp://ftp.ccb.jhu.edu/pub/data/kraken2_dbs/old/minikraken2_v1_8GB_201904.tgz）进行分析，物种注释统计表如下：
+Table:upload/*kraken/kraken.stat.xls,4,2,800,,物种注释统计表
+PRE:
+（1）Sample：样本名称；
+（2）Total Reads：用于物种注释的reads数；
+（3）Taxonomy Mapped Reads：注释上数据库的reads数量；
+（4）Taxonomy Mapped Rate（%）：注释上数据库的reads百分比。
+PRE
+P:#,;#物种注释统计表下载链接：
+Excel:upload/*kraken/kraken.stat.xls,,,物种注释统计表;
+P:#,;#结果展示如下：
+Table:upload/*kraken/Sample/*/*.kraken.report.xls,12,,800,,基于Reads的物种分类统计表（部分结果）
+PRE:
+（1）Fraction：此行分类中的reads在总reads的比例；
+（2）Count：该分类单元的read数，例如一个属，会包括这个属之下的所有种；
+（3）Count_Single_Type：单独比对到该分类单元的reads数，不包含下一分级比对到的reads数；
+（4）Level：分类类型代码，每种代码含义如下，(U)nclassified<未分类>, (R)oot<分类树起始>, (D)omain<域>, (K)ingdom<界>,(P)hylum<门>, (C)lass<纲>, (O)rder<目>, (F)amily<科>, (G)enus<属>, or (S)pecies<种>
+（5）Taxomony_ID：分类对应的NCBI分类ID；
+（6）Taxomony：分类的具体名称。
+P:#,;#其他说明：分类等级码（例：G2，通过一个数字指示与该等级的距离，表示分类单元在属和种之间的等级码。）
+PRE
+P:#,;#全部样品基于Reads的物种分类统计表下载链接：
+Excel:upload/*kraken/Sample/*/*.kraken.report.xls,,,,,全部样品基于Reads的物种分类统计表下载链接：
+P:#,;#采用bracken软件对上述kraken2结果进一步处理排序，去除未分类的reads统计，可得到格式一样，更加直观的结果报告，处理后的全部样品结果下载链接：
+Excel:upload/*kraken/Sample/*/*.kraken_bracken_species.report.xls,,,,,全部样品物种分类Barcken结果统计表下载链接：
+;
+P:#,;#进一步使用krona软件对kraken生成的物种分类结果进行可视化，可得到每个样品的html网页可浏览的可视化结果，示例和说明结果如下所示：
+Image:upload/public/krona_example.png,400,,Krona网页结果打开示例图
+P:#,;#圆圈从内到外依次代表不同的分类级别（界门纲目科属种）；扇形的大小代表不同物种的相对比例。
+P:#,;#全部样品物种分类Krona可视化网页结果下载链接：
+Excel:upload/*kraken/Sample/*/*.html,,,全部样品物种分类Krona可视化网页下载链接：
+076+
+@@@@Kraken_species_stat
+SubMenu: 各分类层级物种统计
+P:#,;#通过kraken2注释，统计各样本中不同分类层级下（域Domain、门Phylum、纲Class、目Order、科Family、属Genus、种Species）注释出的物种数目，评估各样本的物种多样性情况。
+Table:upload/*kraken/Species_count.xls,8,2,800,,各样本中不同分类层级物种数目统计表
+PRE:
+（1）Sample；样本名称；
+（2）第二行-最后：分别为 域、门、纲、目、科、属、种，数字为注释到该分类的物种类型数。
+PRE
+P:#,;#各样本中不同分类层级物种数目统计表下载链接：
+Excel:upload/*kraken/Species_count.xls,,,,,各样本中不同分类层级物种数目统计表下载链接：
+
+@@@@Kraken_richness_stat
+SubMenu: 各分类层级物种丰度分布统计
+P:#,;#基于不同分类层级（门、纲、目、科、属、种）的物种丰度，筛选并绘制各样本和各组中不同分类层级下相对丰度排名前20位的物种分布堆积条形图。
+Image:upload/*kraken/Stat_barplot/richness_top20_*_Sample.png,,,各分类层级物种分布堆积条形图（样本）
+P:#,;#横坐标为样本名称，纵坐标为各样本中对应物种的相对丰度，不同颜色代表不同的物种，颜色图例见图右侧。top20计算方法：先将各样本中物种绝对丰度转为百分比数值，所有样本的百分比数值加和，取和最大的前20个物种，其余所有作为Others。
+Image:upload/*kraken/Stat_barplot/richness_top20_*_Group.png,,,各分类层级物种分布堆积条形图（分组）
+P:#,;#横坐标为分组名称，纵坐标为各分组中对应物种的相对丰度，不同颜色代表不同的物种，颜色图例见图右侧。top20计算方法：先按照分组将绝对丰度加和，然后将各分组中物种绝对丰度转为百分比数值，所有分组的百分比数值加和，取和最大的前20个物种，其余所有作为Others。
+P:#,;#各分类层级物种分布堆积条形图下载链接：
+Excel:upload/*kraken/Stat_barplot/richness_top20_*.p*,,,,,各分类层级物种分布条形图下载链接：
+P:#,;#各分类层级物种分布统计表下载链接：
+Excel:upload/*kraken/Stat_barplot/top20_*.xls,,,,,各分类层级物种分布统计表下载链接：
+
+@@@@Kraken_heatmap_stat
+SubMenu: 各分类层级物种丰度聚类热图
+P:#,;#基于不同分类层级（门、纲、目、科、属、种）的物种丰度，将所有样本中物种按相对丰度排序筛选排名前20位的物种，通过颜色梯度反应多个样本物种组成的相似性。利用R语言工具分别在门、纲、目、科、属、种分类层级上进行聚类热图分析。聚类热图结果中，颜色代表物种丰度；热图左侧聚类树表示不同物种在各样本间丰度的相似情况，两物种间距离越近，枝长越短，说明这两个物种在各样本内的丰度越相似。
+Image:upload/*kraken/Heatmap/heatmap_top20_*_Sample.png,,,各分类层级物种丰度聚类热图（样本）
+P:#,;#横坐标为样本名称，纵坐标为物种名称，颜色代表物种丰度百分比log2处理后的对应值，白色到红色，丰度逐渐升高。top20计算方法：先将各样本中物种绝对丰度转为百分比数值，所有样本的百分比数值加和，取和最大的前20个物种，其余所有作为Others。
+Image:upload/*kraken/Heatmap/heatmap_top20_*_Group.png,,,各分类层级物种丰度聚类热图（分组）
+P:#,;#横坐标为分组名称，纵坐标为物种名称，颜色代表物种丰度百分比log2处理后的对应值，白色到红色，丰度逐渐升高。top20计算方法：先按照分组将绝对丰度加和，然后将各分组中物种绝对丰度转为百分比数值，所有分组的百分比数值加和，取和最大的前20个物种，其余所有作为Others。
+P:#,;#各分类层级物种丰度聚类热图下载链接：
+Excel:upload/*kraken/Heatmap/heatmap_top20_*.p*,,,,,各分类层级物种丰度聚类热图下载链接：
+P:#,;#作图数据同各分类层级物种分布统计表
+
+@@@@diversity
+MainMenu: 物种多样性分析
+@@@@alpha
+SubMenu: Alpha多样性分析
+P:#,;#Alpha多样性是指一个特定区域或生态系统内的多样性，是反映丰富度和均匀度的综合指标。
+P:#,;#Alpha多样性主要与两个因素有关：一是种类数目，即丰富度；二是多样性，即群落中个体分配上的均匀性。群落丰富度（Community richness）的指数主要包括Chao1指数和ACE指数。群落多样性（Community diversity）的指数，包括Shannon指数、Simpson指数和Pielou。
+Table:upload/*Diversity/alpha/alpha_vegan_out.xls,5,,650,,alpha多样性分析结果表（部分样本）
+PRE:,,;
+（1）Sample：样本名称；
+（2）Chao1：Chao1指数是物种数目的衡量标准之一，它考虑3个因素，一是物种数目，二是只有1条序列的物种数目，三是2条序列的物种数目，Chao1指数越大，表明某群落物种数目较多，并且Chao1指数受1条和2条序列的物种影响较大；
+（3）ACE：基于丰度的覆盖估计值（Abundance-based Coverage Estimator, ACE），用于估计群落中含有物种数目的指数，ACE指数越大，表明群落中物种数目越大；
+（4）Pielou：Pielou的均匀度指数（Pielou’s Evenness Index），是最常用的均匀度指数，受到香农指数影响；
+（5）Shannon：香农指数，香农指数值越高，表明群落的α多样性越高，并且该指数计算时受丰度低的物种影响较大；
+（6）Simpson：辛普森指数（Simpson index），Simpson 指数值越大，说明群落多样性越低。辛普森指数在计算时将丰度高的物种设置了较大权重，所以高丰度物种较多时该指数值较大。
+PRE
+P:#,;#alpha多样性分析结果表下载链接：
+Excel:upload/*Diversity/alpha/alpha_vegan_out.xls,,,alpha多样性分析结果表下载链接：
+P:#,;#对以上五个指数进行组内比较，绘制boxplot图，如下：
+Image:upload/*Diversity/alpha/boxplot*.png,,,alpha多样性分析boxplot图
+P:#,;#横坐标为分组，纵坐标为对应指数的值，红色点代表该组中的离群值。
+P:#,;#alpha多样性分析boxplot图下载链接：
+Excel:upload/*Diversity/alpha/boxplot*.p*,,,alpha多样性分析boxplot图下载链接：
+P:#,;#alpha多样性分析组内均值（去除离群值之后的均值）下载链接：
+Excel:upload/*Diversity/alpha/boxplot_mean.xls,,,alpha多样性分析组内均值（去除离群值之后的均值）下载链接：
+@@@@beta
+SubMenu: Beta多样性分析
+@@@@beta_stat
+ThidMenu:Beta多样性计算
+P:#,;#Beta多样性是可用于比较不同样品在物种多样性方面存在的差异情况。样品间的物种丰度分布差异程度可通过统计学中的距离进行量化分析，一般使用统计算法binary jaccard、 bray curtis、 weighted unifrac(限细菌)、 unweighted unifrac (限细菌)等，计算两两样品间距离，获得距离矩阵，其中Unifrac距离是在普通beta距离的基础上添加了进化距离，此外四种算法分为加权和不加权两种，非加权的计算方法，主要考虑物种是否存在，而加权方法，在计算时需同时考虑物种的存在及其丰度。
+P:#,;#本分析中选取了bray curtis算法，根据计算的距离绘制的距离热图如下：
+Image:upload/*Diversity/beta/beta_*.heatmap.png,,,样本距离的热图
+P:#,;#图中热图颜色越靠近蓝色两个样本的微生物群落差异越小，越靠近红色两个样本微生物群落之间的差异越大。
+P:#,;#beta多样性样本距离热图下载链接：
+Excel:upload/*Diversity/beta/beta_*.heatmap.p*,,,beta多样性样本距离热图下载链接：
+P:#,;#beta多样性分析结果表下载链接：
+Excel:upload/*Diversity/beta/beta*.xls,,,beta多样性结果表下载链接：
+@@@@pca
+ThirdMenu: PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的成分，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*Diversity/beta/PCA/All_individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#全物种水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*Diversity/beta/PCA/All_individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+@@@@PCoA
+ThirdMenu: PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示物种组成结构越相似，因此群落结构相似度高的样品倾向于聚集在一起，群落差异很大的样品则会远远分开。
+Image:upload/*Diversity/beta/PCoA/All_PCoA_bray.png,,,PCoA分析
+P:#,;#全物种水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*Diversity/beta/PCoA/All_PCoA_bray.p*,,,PCoA分析下载链接：
+
+@@@@NMDS
+ThirdMenu: NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。我们基于bray curtis距离来进行NMDS分析，结果如下：
+Image:upload/*Diversity/beta/NMDS/All_NMDS_bray.png,,,NMDS分析
+P:#,;#全物种水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析结果下载链接：
+Excel:upload/*Diversity/beta/NMDS/All_NMDS_bray.p*,,,NMDS分析结果下载链接：
+
+
+@@@@diff_analysis
+MainMenu: 差异分析
+SubMenu: LEfSe 组间差异判别分析
+P:#,;#LEfSe（Linear discriminant analysis Effect Size，线性判别分析及影响因子）是用于发现不同生物条件或环境下的两组或多组样本中最能解释组间差异的基因或功能特征，以及这些特征对组间差异的影响程度。 LEfSe 适用于多层次的生物学标识和特征的发现和解释，例如基因、代谢通路、物种分类学谱系等。运用统计学方法进行差异特征发现和显著性检验，软件首先使用非参数系数的 Kruskal-Wallis (KW) sum-rank test 检测组间丰度显著差异的特征，如果组间有相关联的子分组，则再进一步使用(unpaired) Wilcoxon rank-sum test 对上一步的差异特征在子分组中的差异一致性检查，最后运用 LDA 判别分析估计这些差异特征对组间区别的影响大小；如果结果不显著，则是LDA判别分析不显著。
+Image:upload/*DE/LEfSe/*/*lefse.lda*.bar.png,,,差异特征展示图
+P:#,;#通过统计两个组别当中有显著作用的微生物类群通过 LDA 分析（线性回归分析）后获得的 LDA 分值，图中展示了 LDA 分值大于设定值（分别以2和4为阈值进行过滤）的物种，即组间具有统计学差异的Biomarker。
+P:#,;#差异特征展示图下载链接：
+Excel:upload/*DE/LEfSe/*/*lefse.lda*.bar.p*,,,差异特征展示图下载链接：
+
+Image:upload/*DE/LEfSe/*/*significant_cladogram.png,,,显著差异物种聚类树
+P:#,;#通过对LDA分析中的显著差异物种进行聚类树的绘制，由内至外辐射的圆圈代表了由门至属（或种）的分类级别。在不同分类级别上的每一个小圆圈代表该水平下的一个分类，小圆圈直径大小与相对丰度大小呈正比。图中红色区域和绿色区域表示不同分组，树枝中红色节点表示在红色组别中起到重要作用的微生物类群，绿色节点表示在绿色组别中起到重要作用的微生物类群，黄色节点表示的是在两组中均没有起到重要作用的微生物类群。图中英文字母表示的物种名称在右侧图例中进行展示。
+P:#,;#显著差异物种聚类树下载链接：
+Excel:upload/*DE/LEfSe/*/*significant_cladogram.p*,,,显著差异物种聚类树下载链接：
+
+SubMenu: 组间差异分析
+P:#,;#为了研究组间具有显著性差异的物种，从物种丰度表出发，利用wilcox秩和检验方法对组间的物种丰度数据进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的物种，统计结果并绘制差异物种在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*DE/wilcox/wilcox*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：物种的名字；
+（2）*mean：组内物种丰度的均值；
+（3）*sd：组内物种丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异物种绘制丰度分布箱式图，如下：
+Image:upload/*DE/wilcox/*/*.png,,,差异物种丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应物种的绝对丰度。
+P:#,;#组间差异物种丰度分布箱式图下载链接：
+Excel:upload/*DE/wilcox/*/*.p*,,,组间差异物种丰度分布箱式图下载链接：
+
+SubMenu: 多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较物种在 3 组或 3 组以上样本组中的分布是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：物种的名字；
+（2）*mean：组内物种丰度的均值；
+（3）*sd：组内物种丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异物种绘制丰度分布箱式图，如下：
+Image:upload/*DE/ANOVA/*/*.png,,,差异物种丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应物种的绝对丰度。
+P:#,;#多组差异物种丰度分布箱式图下载链接：
+Excel:upload/*DE/ANOVA/*/*.p*,,,多组差异物种丰度分布箱式图下载链接：
+
+@@@@CompareAnalysis
+MainMenu: 比较分析
+SubMenu: ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*CompareAnalysis/anosim/anosim.stat.xls,,,800,,,anosim比较分析结果
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：统计检验显著性。
+PRE
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+SubMenu: adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*CompareAnalysis/adonis/adonis.stat.xls,,,800,,,adonis比较分析结果
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust，为 FDR 显著性校正值。
+PRE
+
+SubMenu: MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据物种丰度文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*CompareAnalysis/mrpp/mrpp.stat.xls,,,800,,,mrpp比较分析结果
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用FDR校验方法对p.value校正后的值。
+PRE
+
+@@@@assemble
+MainMenu: 组装分析
+@@@@assemble_stat
+SubMenu: 组装结果统计
+P:#,;#为了获取样本中微生物完整的基因组信息，需要对样本数据进行组装。由于宏基因组测序包含多个物种，因此组装方法不同于单物种组装。简要组装方法如下，用MEGAHIT软件对去宿主后的序列进行组装，并统计组装结果。从最终contig序列长度、组装序列等方面全面统计本次组装情况。如下表：
+Table:upload/*_Assembly/Assembly_stat.xls,5,,800,,,组装结果统计表（部分结果）
+PRE:,,;
+（1）Sample：样品名称；
+（2）Contig：Contig数量；
+（3）Contig bases(bp)：组装序列总长度；
+（4）N50(bp)：把组装出的contigs从大到小排列，当其累计长度刚刚超过全部组装序列总长度50%时，最后一个contig的大小即为N50的大小；
+（5）N90(bp)：把组装出的contigs从大到小排列，当其累计长度刚刚超过全部组装序列总长度90%时，最后一个contig的大小即为N90的大小；
+（6）Max(bp)：组装的contigs中长度最大的contig的长度；
+（7）Number>=2000bp：长度大于2000bp的contigs数量。
+PRE
+P:#,;#组装结果统计表下载链接：
+Excel:upload/*_Assembly/Assembly_stat.xls,,,组装结果统计表;
+P:#,;#对每个样品组装的contig数目进行统计，并绘制频率分布直方图，如下图：
+Image:upload/*_Assembly/*/*length_dis.png,800,,样品contig长度分布图
+P:#,;#横坐标为contig长度（bp），纵坐标为contig数目（bp），横坐标最大值为2000bp，超过2000bp的contig按照2000bp进行统计。
+P:#,;#样品contig长度分布图下载链接：
+Excel:upload/*_Assembly/*/*length_dis.p*,,,样品contig长度分布图;
+@@@@base_stat
+SubMenu: 碱基组成分析
+P:#,;#GC含量是基因组DNA序列碱基组成的重要特征，蕴涵基因结构、功能和进化信息。所以我们对各个样本组装好的基因组序列进行 A,T,C,G,N 的含量进行统计分析，统计结果如下表所示：
+Table:upload/*_Assembly/*/*GC.xls,,,600,,GC含量统计结果表
+PRE:
+（1）A：A碱基的数量及其占总长的比例；
+（2）T：T碱基的数量及其占总长的比例；
+（3）C：C碱基的数量及其占总长的比例；
+（4）G：G碱基的数量及其占总长的比例；
+（5）N：序列中gap的长度（bp）及其占总长的比例；
+（6）Total Genome base：序列的总长度（单位为bp）。
+PRE
+P:#,;#样品组装序列GC含量结果统计下载链接：
+Excel:upload/*_Assembly/*/*GC.xls,,,,,,GC含量统计结果表;
+
+@@@@gene_prediction
+MainMenu: 基因预测及丰度
+@@@@gene_prediction_stat
+SubMenu: 基于全部组装结果的ORF预测
+P:#,;#基因预测是序列分析中不可或缺的一步。我们采用MetaGeneMark对各个样本组装后的contig序列进行从头基因预测，预测模型为MetaGeneMark_v1.mod，使用seqkit工具过滤ORF，当样本数量小于30个，阈值为200nt，当样本数量在30到60之间，阈值为500nt。各个样品预测、过滤后得到的ORF数量见下表：
+Table:upload/*_Gene/All_sample_orf_stat.xls,4,,650,,0,ORF预测统计表（部分结果）
+PRE:,,;
+（1）Sample：样本名称；
+（2）ORFs：预测到的基因数量。
+PRE
+P:#,;#ORF预测统计表下载链接：
+Excel:upload/*_Gene/All_sample_orf_stat.xls,,,ORF预测结果表：
+
+@@@@non_redundant_stat
+SubMenu: 获取非冗余基因
+P:#,;#由于上一步预测获得的ORF数量较多，且存在大量冗余，我们将所有样本的ORF进行合并，采用MMseq2对合并后的文件进行基因聚类（参数：--min-seq-id 0.5 -c 0.8 --cov-mode 1），去除冗余，去除冗余后的基因统计表如下：
+Table:upload/*_Gene/non-redundant_gene.xls,,,650,,0,非冗余基因统计表
+PRE:,,;
+（1）Seq_Num:总的基因的数目；
+（2）Total_Len:基因的总长度；
+（3）Mean_Len ：基因的平均长度；
+（4）Min_Len ：最短基因的长度；
+（5）Min_ID ：最短基因的ID编号；
+（6）Max_Len：最长基因的长度；
+（7）Max_ID：最长基因的ID编号；
+（8）GC_content：所有基因的GC含量；
+（9）N_Content：所有基因的N含量。
+PRE
+P:#,;#非冗余基因统计表下载链接：
+Excel:upload/*_Gene/non-redundant_gene.xls,,,非冗余基因统计表：
+P:#,;#非冗余基因Fasta下载链接:
+Excel:upload/*_Gene/non-redundant_gene*.fasta,,,非冗余基因Fasta：
+P:#,;#对非冗余基因序列进行统计，并绘制频率分布直方图，如下图：
+Image:upload/*_Gene/non-redundant_gene.nucleotide_length_dis.png,800,,非冗余基因序列长度分布图
+P:#,;#纵坐标Frequency表示contigs的数目，横坐标为contigs长度（bp），其中横坐标最大为2000bp，超过2000bp的序列按照2000bp进行统计。
+P:#,;#非冗余基因序列长度分布图下载链接：
+Excel:upload/*_Gene/non-redundant_gene.nucleotide_length_dis.p*,,,非冗余基因序列长度分布图
+
+
+@@@@gene_rich
+SubMenu: 基因丰度计算
+P:#,;#基于非冗余基因序列，采用salmon软件的meta模式对各个样本去除宿主后的reads进行计算，获得各基因在各个样品中的丰度（TPM）。
+Table:upload/*_Gene/TPM.all.xls,10,4,650,,基因丰度（部分结果）
+PRE:,,;
+（1）gene：基因名；
+（2）从第二列开始为各个样品对应基因的丰度（即TPM值）。
+PRE
+P:#,;#基因丰度下载链接：
+Excel:upload/*_Gene/TPM.all.xls,,,基因丰度
+SubMenu: 基因丰度样品间相关性
+P:#,;#根据基因丰度可以计算各个样品间基因丰度的相关性，若相关系数越接近1，则表明样品之间基因丰度模式的相似度越高，样品间的相关性分析可用于检验实验以及样品选择是否合理。
+Image:upload/*_Gene/TPM.cor.png,,1,样品间基因丰度相关性图
+P:#,;#横纵坐标均表示各个样品，其中不同颜色代表spearman相关系数的高低，颜色越红则表示相关系数越高，颜色越蓝表示相关系数越低，对应数值也在格子中进行显示。最上方为分组条，用不同的颜色表示不同的分组。
+P:#,;#样品间基因丰度相关性图下载链接：
+Excel:upload/*_Gene/TPM.cor.p*,,,样品间基因丰度相关性图
+
+@@@@annotation
+MainMenu: 基因功能注释
+@@@@COG
+SubMenu: COG注释及分析
+ThirdMenu: COG注释
+P:#,;#直系同源数据库（Cluster of Orthologous Groups of proteins，COG）是一个常用的蛋白注释数据库（http://www.ncbi.nlm.nih.gov/COG）。用不同种族的基因成对相似聚类法把它们划分成各种直系同源簇，从而可以用同一簇中的已知基因注释未知基因的功能。该方法通过对未知基因进行基因组水平上找寻直系同源体，从而借助相关直系同源体中已知基因预测未知ORF的生物学功能。用BLAST软件默认参数将基因序列与COG数据库比对，对数据库比对结果过滤，去掉e_value值大于1e-5的比对序列，同时选取同一序列在多次比对中效果最好的一条，统计分析比对结果，如下表所示：
+Table:upload/example/example.Gene_All.COG.xls,,,650,,基因的COG注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因的编号；
+（2）COG_ID：COG数据库编号；
+（3）COG_Anno：COG注释功能；
+（4）COG_Class：功能分类；
+（5）COG_Class_anno：功能描述；
+（6）其余：各样本的TPM值。
+PRE
+P:#,;#样本的COG注释结果下载链接：
+Excel:upload/*_annotation/COG/Gene_All.COG.TPM.xls,,,基因的COG注释结果表：
+P:#,;#根据COG_Class列对上述结果进行统计汇总：COG_Class相同的行进行合并，TPM值加和，其他描述性信息如COG_ID以逗号隔开。统计之后得到upload/*_annotation/COG/*Summary*xls文件（功能分类统计表），以该文件为基础，进行β多样性分析、比较分析、差异分析，从COG功能上对样本和分组进行描述。其他数据库方法相同，后续不再赘述。
+@@@@COG_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/COG/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#COG_Class水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/COG/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从COG_Class功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/COG/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#COG_Class水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/COG/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/COG/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#COG_Class水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/COG/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@COG_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/COG/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/COG/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/COG/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/COG/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/COG/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/COG/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/COG/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/COG/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@COG_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/COG/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/COG/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/COG/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/COG/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/COG/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/COG/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/COG/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/COG/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@EggNOG
+SubMenu: EggNOG注释及分析
+ThirdMenu: EggNOG注释
+P:#,;#直系同源基因库简称EggNOG(http://eggnogdb.embl.de/)，数据库中的Orthologous被分成了若干功能大类。通过与EggNOG数据库的注释可以得到更多的功能注释信息。对预测出来的基因进行EggNOG注释，并对结果进行统计，结果示例如下：
+Table:upload/example/example.Gene_All.EggNOG.xls,,,650,,基因的EggNOG注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）EggNOG_ID：EggNOG数据库中参考序列的编号；
+（3）EggNOG_anno：EggNOG数据库中注释描述信息；
+（4）其余：各样本的TPM值。
+PRE
+P:#,;#样本的EggNOG注释结果下载链接：
+Excel:upload/*_annotation/EggNOG/Gene_All.EggNOG.TPM.xls,,,基因的EggNOG注释结果表：
+@@@@EggNOG_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/EggNOG/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#EggNOG_ID水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/EggNOG/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从EggNOG_ID功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/EggNOG/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#EggNOG_ID水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/EggNOG/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/EggNOG/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#EggNOG_ID水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/EggNOG/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@EggNOG_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/EggNOG/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/EggNOG/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/EggNOG/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/EggNOG/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/EggNOG/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/EggNOG/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/EggNOG/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/EggNOG/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@EggNOG_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/EggNOG/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/EggNOG/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/EggNOG/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/EggNOG/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/EggNOG/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/EggNOG/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/EggNOG/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/EggNOG/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@Swiss
+SubMenu: Swiss-Prot注释
+P:#,;#Swiss-Prot是由欧洲生物信息学研究所建立的基因序列数据库(http://web.expasy.org/docs/swiss-prot_guideline.html)，Swiss-Prot尽可能减少了冗余序列，并与其它30多个数据建立了交叉引用，其大部分的注释结果都是经过实验验证，因此可靠性较高。
+P:#,;#将预测出来的基因与该数据库中的序列进行比对得到注释信息，内容如下表所示：
+Table:upload/example/example.Gene_All.SWISSPROT.xls,,,650,,基因的Swiss-Prot注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）SWISSPROT_ID：Swiss-Prot数据库中参考序列的编号；
+（3）SWISSPROT_Anno：Swiss-Prot数据库中注释描述信息；
+（4）其余：各样本的TPM值。
+PRE
+P:#,;#样本Swiss-Prot的注释结果下载链接：
+Excel:upload/*_annotation/SWISSPROT/Gene_All.SWISSPROT.TPM.xls,,,基因的SWISSPROT注释结果表：
+@@@@Swiss_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/SWISSPROT/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#SWISSPROT_ID水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/SWISSPROT/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从SWISSPROT_ID功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/SWISSPROT/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#SWISSPROT_ID水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/SWISSPROT/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/SWISSPROT/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#SWISSPROT_ID水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/SWISSPROT/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@Swiss_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/SWISSPROT/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/SWISSPROT/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/SWISSPROT/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/SWISSPROT/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/SWISSPROT/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/SWISSPROT/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/SWISSPROT/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/SWISSPROT/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@Swiss_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/SWISSPROT/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/SWISSPROT/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/SWISSPROT/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/SWISSPROT/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/SWISSPROT/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/SWISSPROT/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/SWISSPROT/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/SWISSPROT/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@PHI
+SubMenu: PHI注释
+P:#,;#PHI全称为Pathogen Host Interactions（http://www.phi-base.org）是病原与宿主互作数据库，其内容经过实验验证，主要来源于真菌、卵菌和细菌病原，感染的宿主包括动物、植物、真菌以及昆虫。由于其内容都经过实验验证，因此对致病性分析有很好的指导作用。病原对宿主的作用主要包括：靶向作用、增强毒性、减弱毒性、增强致病性、不影响致病性、减弱致病性和致死等等。
+P:#,;#对预测出来的基因进行PHI注释，并对结果进行统计，结果示例如下：
+Table:upload/example/example.Gene_All.PHI.xls,,,650,,基因的PHI注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）PHI_ID：PHI数据库中参考序列的编号；
+（3）PHI_Affection：PHI数据库中注释描述信息；
+（4）其余：各样本的TPM值。
+PRE
+P:#,;#样本的PHI注释结果下载链接：
+Excel:upload/*_annotation/PHI/Gene_All.PHI.TPM.xls,,,基因的PHI注释结果表：
+@@@@PHI_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/PHI/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#PHI_ID水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/PHI/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从PHI_ID功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/PHI/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#PHI_ID水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/PHI/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/PHI/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#PHI_ID水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/PHI/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@PHI_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/PHI/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/PHI/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/PHI/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/PHI/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/PHI/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/PHI/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/PHI/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/PHI/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@PHI_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/PHI/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/PHI/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/PHI/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/PHI/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/PHI/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/PHI/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/PHI/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/PHI/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@VFDB
+SubMenu: VFDB注释及分析
+ThirdMenu: VFDB注释
+P:#,;#来源于微生物，并对微生物自身侵染和引起特定宿主疾病具有促进作用的物质称为毒力因子（virulent factor）， 主要包括细菌毒素、调节细菌粘附作用的细胞表面蛋白、对细菌本身具有保护作用的蛋白、细胞表面碳水化合物以及具有细菌致病性的水解酶等。毒力因子数据库 VFDB（http://www.mgc.ac.cn/VFs/），是一个全面的一体化的病原菌毒力因子信息管理网络数据库。
+P:#,;#将基因集与 VFDB 核心数据库进行比对，获得基因对应的毒力因子基因功能注释信息，将没比对上的序列再次比对 VFDB 预测数据库。 
+P:#,;#VFDB 毒力因子丰度表如下：
+Table:upload/example/example.Gene_All.VFDB.xls,,,650,,基因的VFDB注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）VF_ID：VFDB数据库中参考序列的编号；
+（3）VF_category_level1：VFDB数据库中的一级分类；
+（4）VF_category_id：一级分类对应的ID号；
+（5）VF_taxonomy：VF来源物种；
+（6）Function：VF的作用；
+（7）其余：各样本的TPM值。
+PRE
+P:#,;#样本的VFDB注释结果下载链接：
+Excel:upload/*_annotation/VFDB/Gene_All.VFDB.TPM.xls,,,基因的VFDB注释结果表：
+@@@@VFDB_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/VFDB/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#VF_category_level1水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/VFDB/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从VF_category_level1功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/VFDB/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#VF_category_level1水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/VFDB/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/VFDB/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#VF_category_level1水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/VFDB/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@VFDB_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/VFDB/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/VFDB/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/VFDB/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/VFDB/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/VFDB/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/VFDB/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/VFDB/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/VFDB/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@VFDB_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/VFDB/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/VFDB/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/VFDB/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/VFDB/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/VFDB/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/VFDB/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/VFDB/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/VFDB/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@ARDB
+SubMenu: ARDB注释
+P:#,;#抗生素抗性基因数据库Antibiotic Resistance Genes Database简称ARDB(ftp://ftp.cbcb.umd.edu/pub/data/ARDB)，旨在建立抗生素抗性基因中心，其中一些基因具有极高的序列相似性与相同的功能机制，因此它们也有具有比较一致的抗性作用。一些基因序列上相似性较低但同样存在着比较一致的抗性作用，每个抗性基因都被大量的数据库如：COG、CDD、GO、KEGG等数据库注释。细菌能产生抗生素，对其他细菌的生长具有抑制作用。使用Antibiotic Resistance Genes Annotation Tool软件，可以得到相应的抗性基因注释结果，能够看到基因的抗性类型、详细描述、抗性谱等信息。
+P:#,;#对预测出来的基因进行ARDB注释，并对结果进行统计，结果示例如下：
+Table:upload/example/example.Gene_All.VFDB.xls,,,650,,基因的VFDB注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）ARDB_ID：ARDB数据库中参考序列的编号；
+（3）ARDB_type：ARDB数据库中的分类；
+（4）ARDB_antibiotic：抗生素名称；
+（5）ARDB_anno：ARDB数据库中注释信息；
+（6）ARDB_species：抗生素来源物种；
+（7）其余：各样本的TPM值。
+PRE
+P:#,;#样本的ARDB注释结果下载链接：
+Excel:upload/*_annotation/ARDB/Gene_All.ARDB.TPM.xls,,,基因的ARDB注释结果表：
+@@@@ARDB_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/ARDB/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#ARDB_type水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/ARDB/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从ARDB_type功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/ARDB/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#ARDB_type水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/ARDB/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/ARDB/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#ARDB_type水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/ARDB/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@ARDB_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/ARDB/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/ARDB/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/ARDB/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/ARDB/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/ARDB/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/ARDB/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/ARDB/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/ARDB/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@ARDB_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/ARDB/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/ARDB/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/ARDB/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/ARDB/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/ARDB/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/ARDB/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/ARDB/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/ARDB/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@CARD
+SubMenu: CARD注释及分析
+ThirdMenu: CARD注释
+P:#,;#CARD全称 Comprehensive Antibiotic Resistance Database（综合的抗生素抗性基因数据库， https://card.mcmaster.ca/），广泛包含来自各种生物体、基因组、质粒的抗生素抗性相关的参考基因，可用于指导环境、动物菌群耐药组和抗生素抗性机制研究。
+P:#,;#把非冗余基因集与 CARD 数据库进行比对，将目标基因与其耐药功能注释信息结合，获得注释结果。
+Table:upload/example/example.Gene_All.CARD.xls,,,650,,基因的CARD注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）ARO_accession：比对到CARD数据库中的 ARO 编号；
+（3）ARO_name：ARO 名称；
+（4）ARO_description：抗生素抗性信息描述；
+（5）AMR （antimicrobial resistance） Gene Family：耐药基因家族；
+（6）Drug class：抵御的抗生素；
+（7）Resistance Mechanism：抗性机制；
+（8）其余：各样本TPM值。
+PRE
+P:#,;#样本的CARD注释结果下载链接：
+Excel:upload/*_annotation/CARD/Gene_All.CARD.TPM.xls,,,基因的CARD注释结果表：
+@@@@CARD_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/CARD/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#ARO_name水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/CARD/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从ARO_name功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/CARD/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#ARO_name水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/CARD/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/CARD/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#ARO_name水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/CARD/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@CARD_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/CARD/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/CARD/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/CARD/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/CARD/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/CARD/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/CARD/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/CARD/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/CARD/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@CARD_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/CARD/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/CARD/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/CARD/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/CARD/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/CARD/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/CARD/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/CARD/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/CARD/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@BacMet
+SubMenu: BacMet注释及分析
+ThirdMenu: BacMet注释
+P:#,;#BacMet是一种关于杀菌剂和重金属抗性数据库，其手动整理了抗菌生物杀虫剂和金属抗性基因数据库。BacMet数据库包含几百个个实验验证的抗性基因。此外，该数据库还包含从公共序列库中收集的上万个潜在抗性基因。
+BacMet数据库中的所有抗性基因均根据其分子功能和诱导的抗性表型进行了整理。
+P:#,;#主要包含两个子库：1）具有实验确定的抗药性功能的基因的手动管理数据库；2）基于与具有实验确认功能的基因的序列相似性来预测抗性基因的数据库。
+P:#,;#我们首先对已知数据库进行比对，未比对上的和预测数据库比对，统计结果如下：
+Table:upload/example/example.Gene_All.BacMet.xls,,,650,,基因的BacMet注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）BacMet_ID：BacMet中的ID号；
+（3）BacMet_Gene_name：抗性基因的名字；
+（4）BacMet_Organism：抗性基因的物种来源；
+（5）BacMet_Compound：抗性物质；
+（6）其余：各样本的TPM值。
+PRE
+P:#,;#样本的BacMet注释结果下载链接：
+Excel:upload/*_annotation/BacMet/Gene_All.BacMet.TPM.xls,,,基因的BacMet注释结果表：
+@@@@BacMet_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/BacMet/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#ARO_name水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/BacMet/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从ARO_name功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/BacMet/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#ARO_name水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/BacMet/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/BacMet/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#ARO_name水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/BacMet/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@BacMet_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/BacMet/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/BacMet/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/BacMet/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/BacMet/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/BacMet/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/BacMet/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/BacMet/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/BacMet/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@BacMet_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/BacMet/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/BacMet/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/BacMet/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/BacMet/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/BacMet/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/BacMet/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/BacMet/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/BacMet/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@CAZy
+SubMenu: CAZy功能注释
+P:#,;#碳水化合物活性酶数据库Carbohydrate-Active enzymes Database简称CAZy(http://csbl.bmb.uga.edu/dbCAN/download.php)，其内容包含能催化碳水化合物降解、修饰、以及生物合成的相关酶系家族。主要包含六大不同功能酶类：糖苷水解酶、糖基转移酶、多糖裂解酶、碳水化合物酯酶，辅助氧化还原酶和碳水化合物结合模块。
+P:#,;#通过以上六种分类信息对注释结果进行统计，结果示例如下：
+Table:upload/example/example.Gene_All.CAZy.xls,,,650,,基因的CAZy注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）CAZy_ID：CAZy中的ID号；
+（3）CAZy_class：CAZy中的分类；
+（4）CAZy_Activities_in_Family：CAZy酶活性；
+（5）其余：各样本的TPM值。
+PRE
+P:#,;#样本的CAZy注释结果下载链接：
+Excel:upload/*_annotation/CAZy/Gene_All.CAZy.TPM.xls,,,基因的CAZy注释结果表：
+@@@@CAZy_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/CAZy/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#CAZy_class水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/CAZy/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从CAZy_class功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/CAZy/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#CAZy_class水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/CAZy/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/CAZy/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#CAZy_class水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/CAZy/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@CAZy_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/CAZy/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/CAZy/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/CAZy/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/CAZy/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/CAZy/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/CAZy/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/CAZy/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/CAZy/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@CAZy_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/CAZy/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/CAZy/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/CAZy/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/CAZy/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/CAZy/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/CAZy/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/CAZy/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/CAZy/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@GO
+SubMenu: GO注释
+P:#,;#Gene Ontology（简称GO）是一个国际标准化的基因功能分类体系，提供了一套动态更新的标准词汇表（Controlled Vocabulary）来全面描述生物体中基因和基因产物的属性。GO总共有三个Ontology，分别描述基因的分子功能（Molecular Function）、细胞组分（Cellular Component）、生物过程（Biological Process）。基因或蛋白质可以通过ID或者序列注释的方法找到与之对应的GO编号，而GO编号可用于对应到Term，即功能类别或者细胞定位。
+Table:upload/example/example.Gene_All.GO.xls,,,650,,基因的GO注释结果表（示例）
+PRE:,,;
+（1）Ontology：GO一级分类；
+（2）Term_name：GO注释信息；
+（3）Accession：GO中的ID号；
+（4）Gene：基因预测的编号；
+（5）其余：各样本的TPM值。
+PRE
+P:#,;#样本的GO注释结果下载链接：
+Excel:upload/*_annotation/GO/Gene_All.GO.TPM.xls,,,基因的GO注释结果表：
+@@@@GO_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/GO/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#Term_name水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/GO/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从Term_name功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/GO/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#Term_name水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/GO/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/GO/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#Term_name水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/GO/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@GO_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/GO/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/GO/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/GO/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/GO/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/GO/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/GO/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/GO/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/GO/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果
+@@@@GO_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/GO/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/GO/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/GO/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/GO/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/GO/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/GO/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/GO/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/GO/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+@@@@KEGG
+SubMenu: KEGG注释
+P:#,;#KEGG（Kyoto Encyclopedia of Genes and Genomes，京都基因与基因组百科全书）是基因组破译方面的数据库。在给出染色体中一套完整基因的情况下，它可以对蛋白质交互（互动）网络在各种各样的细胞活动过程起的作用做出预测。KEGG的PATHWAY数据库整合当前在分子互动网络（比如通路、联合体）的知识，GENES/SSDB/KO数据库提供关于在基因组计划中发现的基因和蛋白质的相关知识，COMPOUND/GLYCAN/REACTION数据库提供生化复合物及反应方面的知识。
+Table:upload/example/example.Gene_All.KEGG.xls,,,650,,基因的KEGG注释结果表（示例）
+PRE:,,;
+（1）Gene_ID：基因预测的编号；
+（2）Annotation：基因对应的KEGG中的KO号；
+（3）Map：基因注释到的KEGG通路号；
+（4）Pathway：Map对应的通路名称；
+（5）其余：各样本的TPM值。
+PRE
+P:#,;#样本的KEGG注释结果下载链接：
+Excel:upload/*_annotation/KEGG/Gene_All.KEGG.TPM.xls,,,基因的KEGG注释结果表：
+@@@@KEGG_BETA
+ThirdMenu: β多样性分析
+P:#,;#（1） PCA分析
+P:#,;#主成分分析PCA（Principal Component Analysis）是一种使用最广泛的数据降维算法。PCA的主要思想是将n维特征映射到k维上，这k维是全新的正交特征也被称为主成分，是在原有n维特征的基础上重新构造出来的k维特征。通过这种降维，PCA可以找到距离矩阵中最主要的坐标，把复杂的数据用一系列的特征值和特征向量进行排序后，选择主要的前几位特征值，来表示样品之间的关系。通过PCA可以观察个体或群体间的差异。
+Image:upload/*_annotation/KEGG/beta/PCA/*individual_dim1_dim2_ellipses.png,,,PCA分析
+P:#,;#Pathway水平PCA分析，横坐标为第一主成分，百分比则表示第一主成分对样品差异的贡献值；纵坐标为第二主成分，百分比表示第二主成分对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCA分析下载链接：
+Excel:upload/*_annotation/KEGG/beta/PCA/*individual_dim1_dim2_ellipses.p*,,,PCA分析下载链接：
+
+P:#,;#（2） PCoA分析
+P:#,;#主坐标分析PCoA（Principal Co-ordinates Analysis），将样本数据经过不同距离算法获得样本距离矩阵的投影。我们基于bray curtis距离来进行PCoA分析，并选取贡献率最大的主坐标组合进行作图展示。如果样品距离越接近，表示从Pathway功能角度来看，功能组成越相似，因此功能相似度高的样品倾向于聚集在一起，功能差异很大的样品则会远远分开。
+Image:upload/*_annotation/KEGG/beta/PCoA/*PCoA_bray.png,,,PCoA分析
+P:#,;#Pathway水平PCoA分析，横坐标为第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标为第二主坐标，百分比表示第二主坐标对样品差异的贡献值；图中的每个点表示一个样品，同一个组的样品使用同一种颜色表示，图中的圈代表95%的置信区间。
+P:#,;#PCoA分析下载链接：
+Excel:upload/*_annotation/KEGG/beta/PCoA/*PCoA_bray.p*,,,PCoA分析下载链接：
+
+P:#,;#（3） NMDS分析
+P:#,;#非度量多维标度分析（Non-metricMultidimensional Scaling，NMDS）是一种将多维空间的研究对象（样本或变量）简化到低维空间进行定位、分析和归类，同时又保留对象间原始关系的数据分析方法。在保持原始数据次序关系的基础上，用新的相同次序的数据列替换原始数据进行度量型多维尺度分析，用于比对样本组之间的差异。
+Image:upload/*_annotation/KEGG/beta/NMDS/*NMDS_bray.png,,,NMDS分析
+P:#,;#Pathway水平NMDS分析，图中的每个点表示一个样品，点与点之间的距离表示差异程度，图中的圈代表95%的置信区间。检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+P:#,;#NMDS分析下载链接：
+Excel:upload/*_annotation/KEGG/beta/NMDS/*NMDS_bray.p*,,,NMDS分析下载链接：
+@@@@KEGG_COM
+ThirdMenu: 比较分析
+P:#,;#（1）ANOSIM分析
+P:#,;#Anosim分析（Analysis of similarities）是一种基于置换检验和秩和检验的非参数检验方法，用来检验组间的差异是否显著大于组内差异，从而判断分组是否有意义。分析结果见下表。
+Table:upload/*_annotation/KEGG/*CompareAnalysis/anosim/anosim.stat.xls,3,,800,,,anosim比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）R：R值大于0，说明组间差异显著；R值等于0，说明组间没有差异；R值小于0，说明组内差异大于组间差异；
+（3）p.value：小于0.05说明结果有统计学意义。
+PRE
+Excel:upload/*_annotation/KEGG/*CompareAnalysis/anosim/anosim.stat.xls,,,anosim比较分析结果下载链接：
+P:#,;#对上述得到的分析结果，将比较组之间的距离值排序获得的秩进行箱线图展示如下：
+Image:upload/*_annotation/KEGG/*CompareAnalysis/anosim/anosim*.png,,,anosim比较分析箱线图
+P:#,;#横坐标：between为不同组间样本数据结果，其他为组内样本数据结果；纵坐标为样本间距离的秩。
+P:#,;#anosim比较分析箱线图下载链接：
+Excel:upload/*_annotation/KEGG/*CompareAnalysis/anosim/anosim*.p*,,,anosim比较分析箱线图下载链接：
+
+P:#,;#（2）adonis分析
+P:#,;#PERMANOVA (Permutational multivariate analysis of variance，置换多元方差分析)，又称 Adonis 分析，利用各种组间距离指数对总方差进行分解，通过线性模型分析不同分组因素对样品差异的解释度，并使用置换检验进行显著性分析。使用 bray curits 距离指数对分组进行分析，结果如下：
+Table:upload/*_annotation/KEGG/*CompareAnalysis/adonis/adonis.stat.xls,3,,800,,,adonis比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）SumsOfSqs：总方差，又称离差平方和；
+（3）MeanSqs：均方（差）， 即 SumsOfSqs/Df；
+（4）F.Model：F 检验值；
+（5）R2：表示不同分组对样品差异的解释度，即分组方差与总方差的比值，R2 越大表示分组对差异的解释度越高；
+（6）p.value：小于0.05说明结果有统计学意义；
+（7）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/KEGG/*CompareAnalysis/adonis/adonis.stat.xls,,,adonis比较分析结果下载链接：
+P:#,;#（3）MRPP分析
+P:#,;#MRPP（Multi Response Permutation Procedure）分析，是一种用于分析高维度数据组间相似性的统计方法，用于判断组间数据是否具有显著性差异。根据功能分类统计文件计算样本间 bray curits 距离后，计算分组之间的MRPP结果，结果如下：
+Table:upload/*_annotation/KEGG/*CompareAnalysis/mrpp/mrpp.stat.xls,3,,800,,,mrpp比较分析结果（部分结果）
+PRE:,,;
+（1）group：表示不同的组合；
+（2）A：A>0表示组间差异大于组内差异，A<0表示组间差异小于组内差异；
+（3）ObservedDelta：值越小说明组内差异越小；
+（4）ExpectedDelta：值越小说明组间差异越小；
+（5）p.value：小于0.05说明结果有统计学意义；
+（6）p.adjust：使用BH校验方法对p.value校正后的值。
+PRE
+Excel:upload/*_annotation/KEGG/*CompareAnalysis/mrpp/mrpp.stat.xls,,,mrpp比较分析结果下载链接：
+@@@@KEGG_DE
+ThirdMenu: 差异分析
+P:#,;#（1）组间差异分析
+P:#,;#为了研究组间具有显著性差异的成分/功能，从功能分类统计表出发，利用wilcox秩和检验方法进行假设检验得到 p 值，通过对 p 值的校正，得到 q 值；最后根据 q 值筛选具有显著性差异的成分/功能，统计结果并绘制差异成分/功能在组间的丰度分布箱图。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/KEGG/*DE/wilcox/wilcox*xls,3,,800,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#组间差异检验结果统计表下载链接：
+Excel:upload/*_annotation/KEGG/*DE/wilcox/wilcox*xls,,,组间差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/KEGG/*DE/wilcox/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#组间差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/KEGG/*DE/wilcox/*/*.p*,,,组间差异成分/功能丰度分布箱式图下载链接：
+
+P:#,;#（2）多组差异分析
+P:#,;#one-way ANOVA， 又称单因素方差分析， 可用于检验多组样本的均值是否相同。 通过此分析可以比较在 3 组或 3 组以上分组中是否存在显著性差异。
+P:#,;#对差异检验结果统计如下：
+Table:upload/*_annotation/KEGG/*DE/ANOVA/ANOVA*xls,3,,1000,,,差异检验结果统计表（部分结果）
+PRE:,,;
+（1）Name：成分/功能的名字；
+（2）*mean：组内成分/功能丰度的均值；
+（3）*sd：组内成分/功能丰度的标准差；
+（4）p_value：小于0.05时差异显著；
+（5）p_adjust：BH方法校正后的p_value值。
+PRE
+P:#,;#多组差异检验结果统计表下载链接：
+Excel:upload/*_annotation/KEGG/*DE/ANOVA/ANOVA*xls,,,多组差异检验结果统计表下载链接：
+P:#,;#对有差异成分/功能绘制丰度分布箱式图，如下：
+Image:upload/*_annotation/KEGG/*DE/ANOVA/*/*.png,,,差异成分/功能丰度分布箱式图
+P:#,;#横轴为样品分组；纵向为对应成分/功能的相对丰度（TPM）。
+P:#,;#多组差异成分/功能丰度分布箱式图下载链接：
+Excel:upload/*_annotation/KEGG/*DE/ANOVA/*/*.p*,,,多组差异成分/功能丰度分布箱式图下载链接：
+
+
+@@@@Appendix
+MainMenu: 附录
+SubMenu:软件与方法说明
+P:#,;#本次分析所使用的软件见下表：
+Table:upload/public/software.xls,10,,950,,软件列表
+P:#,;#软件列表下载链接：
+Excel:upload/public/software.xls,,,软件列表
+SubMenu: 参考文献
+P:#,;#[1] Ameur A , Kloosterman W P , Hestand M S . Single-Molecule Sequencing: Towards Clinical Applications[J]. 2019.
+P:#,;#[2] Wenger A M , Peluso P , Rowell W J , et al. Accurate circular consensus long-read sequencing improves variant detection and assembly of a human genome[J]. Nature Biotechnology, 2019, 37(11).
+P:#,;#[3] Ye S H , Siddle K J , Park D J , et al. Benchmarking Metagenomics Tools for Taxonomic Classification[J]. Cell, 2019, 178(4):779-794.
+P:#,;#[4]Sergey, Koren, Brian P , et al. Canu: scalable and accurate long-read assembly via adaptive k-mer weighting and repeat separation.[J]. Genome research, 2017.
+P:#,;#[5] Borodovsky M . Metagenemark: Analysis of NGS Sequences with Clc Genomic Workbench. 2017.
+P:#,;#[6] Shen W , Le S , Li Y , et al. SeqKit: A Cross-Platform and Ultrafast Toolkit for FASTA/Q File Manipulation[J]. Plos One, 2016, 11(10):e0163962.
+P:#,;#[7] Steinegger M , J Söding. MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets. , 2017.
+P:#,;#[8]Heng. Minimap2: pairwise alignment for nucleotide sequences[J]. Bioinformatics, 2018.
+P:#,;#[9] Kang D , Li F , Kirton E S , et al. MetaBAT 2: an adaptive binning algorithm for robust and efficient genome reconstruction from metagenome assemblies[J]. other, 2019.
+P:#,;#[10] Parks D H , Imelfort M , Skennerton C T , et al. CheckM: assessing the quality of microbial genomes recovered from isolates, single cells, and metagenomes[J]. Genome Research, 2015, 25(7):1043-1055.
+P:#,;#[11] Chaumeil P A , Mussig A J , Hugenholtz P , et al. GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database[J]. Bioinformatics, 2019, 36(6).
+P:#,;#[12] Bo L , Mihai P . ARDB—Antibiotic Resistance Genes Database[J]. Nucleic acids research, 2009, 37(Database issue):D443-D447.
+P:#,;#[13] Urban M , Cuzick A , Rutherford K , et al. PHI-base: A new interface and further additions for the multi-species pathogen-host interactions database[J]. Nucleic Acids Research, 2016, 45(Database issue).
+P:#,;#[14] Sean P , Kristoffer F , Damian S , et al. eggNOG v4.0: nested orthology inference across 3686 organisms[J]. Nucleic Acids Research, 2014, 42(Database issue).
+P:#,;#[15]UniProt: a hub for protein information[J]. Nucleic Acids Research(D1):204-12.
+P:#,;#[16] Tatusov R L , Fedorova N D , Jackson J D , et al. The COG database: an updated version includes eukaryotes[J]. Bmc Bioinformatics, 2003, 4(1):41-41.
+P:#,;#[17]T Tatusova, DR Maglott, KD Pruitt. NCBI Reference Sequence (RefSeq): a curated non-redundant sequence database of genomes, transcripts and proteins[J]. Nucleic acids research, 2018.
+P:#,;#[18] Cantarel B . The Carbohydrate-Active EnZymes database (CAZy) : an expert resource for glycogenomics[J]. Nuc Acids Res, 2009, 37.
+SubMenu: 结果目录
+ShowDir:$(REPORT_DIR)
+First2Menu:1

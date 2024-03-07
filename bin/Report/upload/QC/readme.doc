@@ -1,0 +1,19 @@
+STAT_result.xls:各个样本的过滤统计表
+（1）Raw Reads Number：原始的未过滤测序的序列数；
+（2）Raw Bases Number：原始的未过滤的碱基数；
+（3）Clean Reads Number：过滤后的剩余的序列数；
+（4）Clean Reads Rate(%)：过滤后剩余的序列数的比例，这个值越大，说明测序质量或者文库质量越好；
+（5）Clean Bases Number：过滤后的剩余的碱基数；
+（6）Low-quality Reads Number：被低质量过滤标准去掉的序列数；
+（7）Low-quality Reads Rate(%)：被低质量过滤标准去掉的序列的比例；
+（8）Ns Reads Number：含碱基N的比例大于5%的Reads数；
+（9）Ns Reads Rate(%)：含碱基N的比例大于5%的Reads占Raw Reads数的比例；
+（10）Adapter polluted Reads Number：含有接头污染被去掉的序列数；
+（11）Adapter polluted Reads Rate(%)：含有接头污染去掉的序列的比例；
+（12）Raw Q30 Bases Rate(%)：在过滤前，原始序列中质量值大于30（错误率小于0.1%）的碱基占总碱基（Raw Reads）的比例；
+（13）Clean Q30 Bases Rate(%)：过滤后，总序列中质量值大于30（错误率小于0.1%）的碱基占总碱基（Clean Reads）的比例。
+
+sample_info.xls:样本信息收集表
+（1）Sample:样本名称；
+（2）Description:样本述（客户提供）；
+（3）Group:组名。

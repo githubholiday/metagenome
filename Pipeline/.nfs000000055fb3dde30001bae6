@@ -1,0 +1,309 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+'''
+描述:
+    用于生成宏基因组流程所需配置文件。
+
+必选参数：
+    -i, --infofile    信息收集表
+    -o, --outdir    输出路径
+    -f, --filterdir    原始下机数据路径，可有多个下机路径
+    -p, --project_id    子项目编号
+    -n, --name    任务单名称
+
+可选参数：
+    -j, --joblist    job.list分析条目列表，默认标准分析
+    -c, --config    整个分析的配置文件，一般默认即可
+    -r, --run        是否自动投递任务
+
+更新信息：
+
+'''
+
+import os
+import re
+import sys
+import argparse
+import configparser
+import pandas as pd
+import subprocess
+import logging
+import getpass
+import numpy as np
+import glob
+bindir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(bindir + '/lib')
+from analysisConf import *
+
+__author__ = 'zhang yue'
+__mail__ = 'yuezhang@genome.cn'
+__update__ = "liaorui"
+__date__ = "2021-12-13"
+
+pat1 = re.compile('^\s*$')
+
+class myconf(configparser.ConfigParser):
+
+    def __init__(self, defaults=None):
+        configparser.ConfigParser.__init__(
+            self, defaults=None, allow_no_value=True)
+
+    def optionxform(self, optionstr):
+        return optionstr
+
+
+def check_exists(content, Type, mkdir='Y'):
+    if Type == "file":
+        if not os.path.isfile(content):
+            logging.error('{0} not exist!\n'.format(content))
+            sys.exit(1)
+    elif (Type == 'dir') & (mkdir == 'Y'):
+        if not os.path.exists(content):
+            os.makedirs(content)
+    elif (Type == 'dir') & (mkdir == 'F'):
+        if not os.path.exists(content):
+            logging.error('{0} not exist!'.format(content))
+            sys.exit(1)
+    else:
+        pass
+    return content
+
+
+def default_Para(config, args):
+    [config.add_section(i) for i in ['Sample', 'cmp','Para']]
+    user = getpass.getuser()
+    config.set('Para', 'Para_user', user)
+    config.set("Para", "Para_sampleinfo", args.infofile)
+    config.set("Para", "Para_ProjectName", args.name)
+    config.set("Para", "Para_Project", args.project_id)
+    config.set("Para", "Para_config", args.config)
+
+class readinfo:
+    info_df = pd.DataFrame()
+    pair_df = pd.DataFrame()
+    family_df = pd.DataFrame()
+
+    def __init__(self, info_file, outdir, config ):
+        self.info_file = info_file
+        self.outdir = outdir
+        self.config = config
+        self.read_info()
+        self.read_genome_version()
+
+    # 获得样品信息
+    def read_genome_version( self):
+        df = pd.read_excel(self.info_file, sheetname=0,index_col = 0)
+        df = df.T
+        projectName = df.ix[0,'任务单名称']
+        reobj = re.compile('任务单.*')
+        projectName = re.sub(reobj,'',projectName)
+        projectName = projectName.rstrip('测序')
+        projectName = projectName.rstrip('建库')
+        projectName = projectName.rstrip('过滤')
+        self.projectName += '结题报告'
+
+        self.subproject_id=df.ix[0,'子项目编号']
+
+
+    def read_info(self):
+        df = pd.read_excel(self.info_file, sheet_name=0)
+        # print (df)
+        sample_start, sample_end = 0, 0
+        ref = ''
+        for i, row in df.iterrows():
+            if row[0] == "宿主基因组版本":
+                ref = row[1]
+            if row[0] == "差异比较组合":
+                cmp_start = i
+            if row[0] == "样品名称" and sample_start == 0:
+                sample_start = i
+
+        df = pd.read_excel(self.info_file, sheet_name=0, header=sample_start + 1)
+        for i, row in df.iterrows():
+            if pd.isnull(row["样品名称"]) or pd.isnull(row["样品编号"]) or pd.isnull(row["结题报告中样品名称"]):
+                break
+            sample_end = i
+
+        info_df = df[[ "样品名称", "样品编号", "结题报告中样品名称", "样品描述", "分组" ]].ix[0:sample_end, :]
+
+        sample_dup = info_df["样品名称"][info_df["样品名称"].duplicated(keep='first')]
+        report_sample_dup = info_df["结题报告中样品名称"][info_df["结题报告中样品名称"].duplicated(keep='first')]
+        sample_id_dup = info_df["样品编号"][info_df["样品编号"].duplicated(keep='first')]
+        if sample_dup.shape[0] != 0 or report_sample_dup.shape[0] != 0 or sample_id_dup.shape[0] != 0:
+            if sample_dup.shape[0] != 0:
+                logging.error('以下样品名称有重复,请修正:' + " ".join(set(sample_dup)))
+            if report_sample_dup.shape[0] != 0:
+                logging.error('以下结题报告中样品名称有重复,请修正' + " ".join(set(report_sample_dup)))
+            if sample_id_dup.shape[0] != 0:
+                logging.error('以下样本编号有重复,请修正' + " ".join(set(sample_id_dup)))
+            sys.exit(1)
+
+        Dict = {}
+        Samples = {}
+        for i, row in info_df.iterrows():
+            for group in re.split(',|，', row['分组']):
+                Dict.setdefault(group, []).append(row['结题报告中样品名称'])
+
+        info_df[[ "样品名称", "样品编号", "样品描述", "结题报告中样品名称", "分组"]].to_csv(os.path.join(self.outdir, "sample.list"), sep='\t', header=False, index=None, encoding='utf-8')
+
+        info_df[["结题报告中样品名称","分组"]].to_csv(os.path.join(self.outdir, "cmp.list"),sep='\t', header=False, index=None, encoding='utf-8')
+        os.system("sed -i '1iSample\tGroup\n' {0}".format(os.path.join(self.outdir, "cmp.list")))
+        self.config.set('Para', 'Para_samplenum', str(info_df.shape[0]))
+        self.config.set('Para', 'Para_samplelist', os.path.join(self.outdir, "sample.list"))
+        self.config.set('Para', 'Para_cmp', os.path.join(self.outdir, "cmp.list"))
+        self.config.set('Para', 'Para_sample', ",".join(info_df["结题报告中样品名称"].tolist()))
+
+        self.Samples = Samples
+        self.sample_info = info_df
+        self.ref = ref
+
+def get_clean_dir(filterdir):
+    '''
+    通过filterdir路径获取样本数据，分别进行Analysis和Cleandata进行匹配
+    '''
+    cleandir = glob.glob("{0}/Analysis/*/filter/clean/".format(filterdir))
+    if len(cleandir) == 0 :
+        cleandir2 = glob.glob("{0}/Cleandata/*/".format(filterdir))
+        if len(cleandir2) == 0:
+            print("目录结构既不是Analysis也不是CleanData模式，退出")
+            sys.exit(1)
+        else :
+            return "{0}/Cleandata/sample/".format(filterdir)
+    else:
+        return "{0}/Analysis/sample/filter/clean/".format(filterdir)
+def my_run( cmd, promt=True ):
+    if os.system(cmd) == 0 :
+        if promt:
+            print('cmd:{0},成功'.format(cmd))
+    else:
+        if promt:
+            print('cmd:{0},失败'.format(cmd))
+
+def check_and_rename(sample_info, filterdir, resultdir, config ):
+    if os.path.exists(resultdir+"/QC/filter"):
+        print("{0}/QC/filter/目录下存在数据，正在删除重新连接".format(resultdir))
+        os.system("rm {0}/QC/filter/*".format(resultdir))
+    else:
+        check_exists( os.path.join( resultdir, "QC" ), "dir" )
+    sample_dict = {}
+    for i, row in sample_info.iterrows():
+        sample_name = row["结题报告中样品名称"]
+        sample_id = row["样品名称"]
+        sample_dict[str(sample_id)] = [ sample_name ]
+    sample_list = []
+    cleandir = get_clean_dir( filterdir )
+    redir = os.path.join( resultdir, "QC", "filter" )
+    check_exists( os.path.join( resultdir, "QC", "filter" ), "dir" )
+    for sample in sample_dict:
+        sample_clean_dir = cleandir.replace('sample', sample)
+        tmp = sample_dict[sample]
+        report_sample_name = sample_dict[sample][0]
+        R1_cmd = "ln -s {0}/{1}_R1.fq.gz {2}/{3}_R1.fq.gz".format(sample_clean_dir,sample,redir,report_sample_name)
+        R2_cmd = "ln -s {0}/{1}_R2.fq.gz {2}/{3}_R2.fq.gz".format(sample_clean_dir,sample,redir,report_sample_name)
+        my_run(R1_cmd, False)
+        my_run(R2_cmd, False)
+        print(report_sample_name)
+        print(sample_list)
+        if not report_sample_name in sample_list :
+            tmp.extend(["{0}/{1}_R1.fq.gz".format(redir,report_sample_name),"{0}/{1}_R2.fq.gz".format(redir,report_sample_name)])
+            config.set("Sample", '\t'.join(tmp))
+            sample_list.append( report_sample_name )
+
+    return os.path.join( resultdir, "QC")
+
+
+def generate_pip(job_config_file, predir, outdir, bindir, project_id, pipe_config_dict):
+    DEL = open(os.path.join(predir, 'delete.sh'), 'w')
+    DEL.write('make -f {0}{1} outdir={2} Clean\n'.format(bindir, '/../makefile/mk_Clean.mk', outdir))
+    DEL.close()
+    bindir = bindir+"/../bin"
+    cmd = ('{ags_plus} pipeline -p {job_config_file} -i {config} -j {project_id} -b {bindir} -o {outdir} -r\n'.format(ags_plus=pipe_config_dict['ags_plus'], job_config_file=job_config_file, config=predir+'/config.ini', project_id=project_id, bindir=bindir, outdir=outdir))
+    QSUB = open('{0}/{1}.sh'.format(predir, project_id), 'w')
+    QSUB.write(cmd)
+    QSUB.close()
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__,
+             formatter_class=argparse.RawDescriptionHelpFormatter,
+             epilog='author:\t{0}\nmail:\t{1}\nupdate:\t{2}\ndate:\t{3}'.format(__author__, __mail__,__update__,__date__))
+    parser.add_argument('-p', '--project_id', help='【必需】子项目编号', dest='project_id', required = True)
+    parser.add_argument('-n', '--name', help='【必需】任务单名称', dest='name', required=True )
+    parser.add_argument('-i', '--infofile', help='【必需】info文件', dest='infofile', required=True)
+    parser.add_argument('-o', '--outdir', help='【必需】outdir', dest='outdir', required=True)
+    parser.add_argument('-f', '--filterdir', help='【必需】质控下机数据，给到Filter_Result', dest='filterdir', required=True)
+    parser.add_argument('-l', '--pipline', help='【非必需】质控不为流水线，若为流水线会自动识别Filter_Result路径，不用添加此参数，否则需添加此参数，并给-f参数时，将所有样本的cleandata放在同一目录下即可', action='store_true')
+    parser.add_argument('-c', '--config', help='【非必需】流程的config文件', dest='config', default=os.path.abspath('{0}/../config/config.txt'.format(bindir)))
+    parser.add_argument('-g', '--genome', help='【非必需】宿主基因组，默认使用人，若为其他物种，则需要提供此参数',dest='genome')
+    parser.add_argument('-r', '--run', help='auto qsub or not', action='store_true')
+    args = parser.parse_args()
+
+    # set the logging
+    logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s - %(message)s")
+
+    args.infofile = os.path.abspath(args.infofile)
+    args.outdir = os.path.abspath(args.outdir)
+    args.config = os.path.abspath(args.config)
+    
+    # 判断文件
+    info = check_exists(args.infofile, "file")
+    PreDir = check_exists(os.path.join(args.outdir, "prepare"), "dir")
+    ResultDir = check_exists(os.path.join(args.outdir, "result"), "dir")
+    os.system('cp {0} {1}/config.txt'.format(args.config, PreDir))
+    args.config = '{0}/config.txt'.format(PreDir)
+    # 读取config信息
+    pipe_config_dict = read_pipelineConf(args.config)
+    
+    # 初始化config
+    config = myconf()
+    # 设置默认配置参数
+    default_Para(config, args)
+    
+    # 读取信息收集表
+    Info = readinfo( args.infofile, PreDir, config )
+    
+    # 配置 job_config.txt
+    all_job_config = '{0}/../config/all_job_config'.format(bindir)
+    job_config = '{0}/job_config.txt'.format(PreDir)
+    if args.genome :
+        #exclude = [ 'Host' ]
+        exclude = []
+        config.set("Para","Para_ref",args.genome)
+    elif len(Info.ref) != 0:
+        exclude = [ 'IndexHost']
+        ref = glob.glob("{0}/*/*/{1}/Analysis/*/genome/bwa_index/*.amb".format(pipe_config_dict['ref_db'],Info.ref))
+        if ref:
+            config.set("Para","Para_ref",ref.replace(".amb",""))
+        else:
+            print("宿主基因组版本{0}，没有建bwa库，脚本退出".format(Info.ref))
+    else:
+        exclude = [ 'IndexHost']
+        config.set("Para","Para_ref",pipe_config_dict['RNA_database_default'])
+    with open ( all_job_config, 'r' ) as IN, open ( job_config, 'w' ) as OUT :
+        for line in IN :
+            if line.startswith('#') or re.search(pat1,line): continue
+            tmp = line.rstrip().split(':',1)
+            if not tmp[0] in exclude:
+                out = '\n'.join(tmp[1].split('\\n'))
+                OUT.write(out+'\n\n')
+    
+    Original_BAM = check_and_rename( Info.sample_info, args.filterdir, ResultDir, config )
+
+    config.set("Para", "Para_prepare", PreDir)
+    config.set("Para", "Para_cleandir", ResultDir+"/QC/filter/")
+    config.set("Para", "Para_filterdir",args.filterdir)
+    # 生成config.ini
+    config.write(open(os.path.join(PreDir, "config.ini"), "w"))
+
+    # 生成流程
+    generate_pip(job_config, PreDir, ResultDir, bindir, args.project_id, pipe_config_dict)
+
+    # 是否投递
+    #if args.run:
+    #    cmd = ('nohup sh {0}/{1}.sh &'.format(PreDir,args.project_id))
+    #    subprocess.call(cmd, shell=True)
+    #else :
+    #    print ( '请运行以下命令投递任务：\n\tnohup sh {0}/{1}.sh &'.format(PreDir,args.project_id) )
+
+
+if __name__ == "__main__":
+    main()

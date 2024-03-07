@@ -1,0 +1,8 @@
+MGM=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/MetaGeneMark_linux_64/mgm/
+gmhmmp_parematers=-r -a -d -f G 
+Seqkit=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/seqkit
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+MMSEQ2=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/mmseqs
+mmseq2_para=--min-seq-id 0.5 -c 0.8 --cov-mode 1 --threads 4
+RSCRIPT=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_amplified/bin/Rscript
+PERL=/annoroad/data1/software/bin/miniconda/envs/Transcriptome_pipeline_2023_2/bin/perl

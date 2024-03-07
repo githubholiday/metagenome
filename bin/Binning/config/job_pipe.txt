@@ -1,0 +1,10 @@
+[Job Start]
+Name	bam2fasta	
+Env	idc_physical
+Memory	3
+CPU	1
+Image	annogene-centos-base:v0.4
+Order	1
+Major	T
+Command	make -f BIN/Assemble.mk config=Para_config outdir=OUTDIR/fasta/$(Sample)[0] out_prefix=$(Sample)[0].ccs input=OUTDIR/ccs/$(Sample)[0]/*ccs.bam bam2fasta
+[Job End]

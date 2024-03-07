@@ -1,0 +1,6 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+ADD Transcriptome_pipeline_2023_R3.4.1.yaml /
+RUN conda-env create -f /Transcriptome_pipeline_2023_R3.4.1.yaml
+USER test_user

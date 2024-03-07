@@ -1,0 +1,7 @@
+Gene_ID	gene_1000066_Sample4|642_nt
+ARO_accession	ARO:3002884
+ARO_name	iri
+ARO_description	iri is a monooxygenase that confers resistance to rifampin found
+AMR_Gene_Family	rifampin monooxygenase
+Drug_Class	rifamycin antibiotic
+Resistance_Mechanism	antibiotic inactivation

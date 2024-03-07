@@ -1,0 +1,2 @@
+Rscript=/annoroad/data1/bioinfo/PROJECT/RD/Cooperation/RD_Group/yangzhang/miniconda3/envs/amplified_pipeline/bin/Rscript
+CONVERT=/usr/local/bin/convert

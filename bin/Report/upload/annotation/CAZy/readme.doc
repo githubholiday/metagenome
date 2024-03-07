@@ -1,0 +1,10 @@
+Gene_All.CAZy.TPM.xls：
+（1）Gene_ID：基因预测的编号；
+（2）CAZy_ID：CAZy中的ID号；
+（3）CAZy_class：CAZy中的分类；
+（4）CAZy_Activities_in_Family：CAZy酶活性；
+（5）其余：各样本的TPM值。
+
+Gene_All.CAZy.TPM.Summary.CAZy_class.xls：
+将Gene_All.CAZy.TPM.xls按照CAZy_class列合并其余列，其中如果是TPM值的列，则在合并时加和；如果是描述性信息，则在合并时用逗号隔开。
+后续的差异分析、比较分析、β多样性分析均是依据此Summary文件。

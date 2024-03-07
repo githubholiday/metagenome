@@ -1,0 +1,62 @@
+结果目录：
+├── NMDS
+│   ├── *NMDS_bray.coordinate.xls
+│   ├── *NMDS_bray.pdf
+│   └── *NMDS_bray.png
+├── PCA
+│   ├── *individual_dim1_dim2_ellipses.pdf
+│   ├── *individual_dim1_dim2_ellipses.png
+│   ├── *PCA.3d.pdf
+│   ├── *PCA.3d.png
+│   ├── *PCA_coordinate.xls
+│   ├── *PCA_summary.xls
+└── PCoA
+    ├── *PCoA_bray.coordinate.xls
+    ├── *PCoA_bray.pdf
+    ├── *PCoA_bray.png
+    └── *PCoA_bray.summary.xls
+
+1. NMDS文件夹：NMDS分析结果
+1)*NMDS_bray.p*按照braycurtis方法计算后绘制的NMDS图。
+图中的每个点表示一个样品，不同颜色代表不同分组，椭圆形圈表示其为95%置信椭圆(即该样本组假如有100个样本会有95个落在其中)。
+点与点之间的距离表示差异程度，检验NMDS结果的优劣用胁迫系数（stress）来衡量，此值越小越好，当小于0.2是可以用NMDS的二维点图表示，当stress<0.05时具有很好的代表性。
+2)*NMDS_bray.coordinate.xls 按照braycurtis方法计算后绘制NMDS图的绘图文件
+Sample：样本
+NMDS1：横坐标
+NMDS2：纵坐标
+Group：分组
+
+2. PCA文件夹：PCA分析结果
+1)*PCA.3d.p*：PCA分析3维图。
+图中每个点代表一个样品；不同颜色代表不同分组；
+每个坐标轴分别表示第一、二、三主成分，括号中的数字表示主成分的贡献度。
+
+2)*individual_dim1_dim2_ellipses.p*：PCA分析2维图。
+图中每个点代表一个样品；不同颜色代表不同分组；椭圆形圈表示其为95%置信椭圆(即该样本组假如有100个样本会有95个落在其中)。
+横坐标为第一主成分，纵坐标为第二主成分，括号中的数字表示主成分的贡献度。
+
+3)*PCA_summary.xls：每个主成分的贡献度统计表
+Comp：主成分
+eigenvalue：特征值
+percentage of variance：该主成分的贡献度（百分比）
+cumulative percentage of variance：第三列的累计值（百分比）
+
+4)*PCA_coordinate.xls：主成分的坐标文件
+Dim.1~Dim.5：分别代表第1到第5主成分
+
+3. PCoA文件夹：PCoA分析结果
+1）*PCoA_bray.summary.xls：每个主坐标的贡献度统计表（距离矩阵获得方法：braycurtis）
+Axis：主坐标
+eigenvalue：特征值
+percentage of variance：该主坐标的贡献度（百分比）
+cumulative percentage of variance：第三列的累计值（百分比）
+
+2)*PCoA_bray.coordinate.xls：主坐标的坐标文件（距离矩阵获得方法：braycurtis）
+Sample：样本
+Dim.1：第一主坐标
+Dim.2：第二主坐标
+Group：分组
+
+3)*PCoA_bray.p*:PCoA分析的2维图（距离矩阵获得方法：braycurtis）
+图中每个点代表一个样品，不同颜色代表不同分组，椭圆形圈表示其为95%置信椭圆(即该样本组假如有100个样本会有95个落在其中)。
+横坐标表示第一主坐标，百分比则表示第一主坐标对样品差异的贡献值；纵坐标表示第二主坐标，百分比表示第二主坐标对样品差异的贡献值。

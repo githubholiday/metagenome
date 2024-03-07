@@ -1,0 +1,92 @@
+makefile_dir=$(dir $(firstword $(MAKEFILE_LIST)))
+makefile_name=$(notdir $(firstword $(MAKEFILE_LIST)))
+script=$(makefile_dir)/script/
+
+ifdef config
+	include $(config)
+else 
+	include $(makefile_dir)/config/config.txt
+endif
+
+
+HELP:
+	@echo Description: 
+	@echo Program: mk_DE
+	@echo Version: v1.0.0
+	@echo Contactor: yangzhang@genome.cn
+	@echo Usage: DE_wilcox和DE_metastat为两组比较；DE_ANOVA为多组比较
+	@echo -e "\t" "make -f $(makefile_name) qiimeFile= groupFile= cmpFile= outdir= config= DE_wilcox "
+	@echo -e "\t" "make -f $(makefile_name) qiimeFile= groupFile= cmpFile= outdir= config= DE_ANOVA "
+	@echo -e "\t" "make -f $(makefile_name) qiimeFile= groupFile= cmpFile= outdir= diff_on=yes cmp1=T cmp2=M LDA=2 config= DE_LEfSe"
+	@echo 参数说明：
+	@echo -e "\t" "config: [文件|可选]  模块配置文件，和软件相关参数，默认为$(makefile_dir)/config/config.txt "
+	@echo -e "\t" "qiimeFile: [文件|必需]  物种丰度文件"
+	@echo -e "\t" "groupFile: [文件|必需]  样本和分组对应文件，Sample tab Group"
+	@echo -e "\t" "cmpFile: [文件|必需]  比较组合文件，如果是两两比较，则用tab分隔两列即可；如果是三组及以上，需要给组名 tab A B C D，用空格分隔多组"
+	@echo -e "\t" "outdir: [路径|必需]  分析结果输出路径 "
+	@echo -e "\t" "diff_on: [字符|必需]  是否进行LEfSe差异分析 "
+	@echo -e "\t" "cmp1/cmp2: [字符|必需]  比较组，不区分实验组和对照组。目前只支持两个组，如果要做多组的结果，那么需要自行调整输入的文件，详情百度 "
+	@echo -e "\t" "LDA: [字符|必需]  筛选结果的LDA阈值"
+
+
+.PHONY:DE_metastat
+DE_metastat:
+	@echo "===================== Run DE_metastat  Begin at `date` ===================== "
+	[ -d $(outdir) ] || mkdir -p $(outdir)/ && echo "dir ok"
+	$(RSCRIPT) $(script)/metastat.r $(qiimeFile) $(groupFile) $(cmpFile) $(outdir)
+	@echo "===================== Run DE_metastat  End at `date` ===================== "
+
+.PHONY:DE_wilcox
+DE_wilcox:
+	@echo "===================== Run DE_wilcox  Begin at `date` ===================== "
+	rm -rf $(outdir) && mkdir -p $(outdir)/ && echo "dir ok"
+	if [ -s $(cmpFile) ] ;\
+	then \
+		$(RSCRIPT) $(script)/wilcox.r $(qiimeFile) $(groupFile) $(cmpFile) $(outdir) ;\
+		cd $(outdir) && for i in `ls */*.pdf`;do $(CONVERT) $$i `dirname $$i`/`basename $$i .pdf`.png;done ;\
+	else \
+		echo ======== your $(cmpFile) is empty, so will not analysis ======= ;\
+	fi
+	@echo "===================== Run DE_wilcox  End at `date` ===================== "
+
+.PHONY:DE_ANOVA
+DE_ANOVA:
+	@echo "===================== Run DE_ANOVA  Begin at `date` ===================== "
+	rm -rf $(outdir) && mkdir -p $(outdir)/ && echo "dir ok"
+	if [ -s $(cmpFile) ] ;\
+	then \
+		$(RSCRIPT) $(script)/ANOVA.r $(qiimeFile) $(groupFile) $(cmpFile) $(outdir) ;\
+		cd $(outdir) && for i in `ls */*.pdf`;do $(CONVERT) $$i `dirname $$i`/`basename $$i .pdf`.png;done ;\
+	else \
+		echo ======== your $(cmpFile) is empty, so will not analysis ======= ;\
+	fi
+	@echo "===================== Run DE_ANOVA  End at `date` ===================== "
+
+cmp_dir=$(outdir)/$(cmp1)_$(cmp2)
+qiimeGroupFile=$(cmp_dir)/$(cmp1)_$(cmp2).diff.group.xls
+lefse_infile=$(cmp_dir)/$(cmp1)_$(cmp2).lefse.in
+lefse_res=$(cmp_dir)/$(cmp1)_$(cmp2).lefse.lda$(LDA).res
+lefse_bar=$(cmp_dir)/$(cmp1)_$(cmp2).lefse.lda$(LDA).bar
+lefse_signif=$(cmp_dir)/$(cmp1)_$(cmp2).lefse.lda$(LDA).significant
+lefse_clado=$(cmp_dir)/$(cmp1)_$(cmp2).lefse.lda$(LDA).significant_cladogram
+
+.PHONY:DE_LEfSe
+DE_LEfSe:
+	@echo "===================== Run DE_LEfSe Begin at `date` ===================== "
+	if [ $(diff_on) == 'yes' ];\
+		then \
+		mkdir -p $(cmp_dir) ;\
+		$(PYTHON3) $(script)/add_group_select.py -i $(qiimeFile) -s $(groupFile) -o $(qiimeGroupFile) -cmp $(cmp1) $(cmp2) && \
+		source $(lefse_conda) && $(LEFSE)/python3 $(LEFSE)/lefse_format_input.py $(qiimeGroupFile) $(lefse_infile) -c 2 -u 1 -o 1000000 && \
+		source $(lefse_conda) && $(LEFSE)/python3 $(LEFSE)/lefse_run.py $(lefse_infile) $(lefse_res) -l $(LDA)  && \
+		source $(lefse_conda) && $(LEFSE)/python3 $(LEFSE)/lefse_plot_res.py --format pdf $(lefse_res) $(lefse_bar).pdf && \
+		$(CONVERT) $(lefse_bar).pdf $(lefse_bar).png && \
+		source $(lefse_conda) && $(LEFSE)/python3 $(LEFSE)/lefse_plot_features.py --format pdf -f diff --archive zip $(lefse_infile) $(lefse_res) $(cmp_dir)/biomarkers$(LDA).zip --subcl_median n --subcl_mean y && \
+		cat $(lefse_res)|grep -v '-'|awk -F "\t" '{if($$4>=$(LDA))print $$0}' >$(lefse_signif).res && \
+		source $(lefse_conda) && $(LEFSE)/python3 $(LEFSE)/lefse_plot_cladogram.py --format pdf $(lefse_signif).res $(lefse_clado).pdf && \
+		$(CONVERT) $(lefse_clado).pdf $(lefse_clado).png && \
+		ln -sf $(lefse_res) $(lefse_res).txt ;\
+	else\
+		echo "this cmp do not analysis diff by lefse";\
+	fi
+	@echo "===================== Run Diff_lefse End at `date` ===================== "

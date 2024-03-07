@@ -1,0 +1,6 @@
+RSCRIPT=/annoroad/data1/software/bin/miniconda/envs/NGS_metagenome_amplified/bin/Rscript
+RSCRIPT_pca=/annoroad/data1/software/bin/miniconda/envs/Transcriptome_pipeline_2023_R3.4.1/bin/Rscript
+QIIME2=/annoroad/data1/software/bin/miniconda/envs/TGS_16s_qiime_2023/bin/qiime
+QIIME2_DIR=/annoroad/data1/software/bin/miniconda/envs/TGS_16s_qiime_2023/bin/
+PYTHON3=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+CONVERT=/usr/local/bin/convert

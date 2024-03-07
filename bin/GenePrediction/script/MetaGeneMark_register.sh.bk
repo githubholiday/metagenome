@@ -1,0 +1,3 @@
+source_file=$1
+cp ${source_file} "$HOME/.gm_key"
+echo "You have registered!"

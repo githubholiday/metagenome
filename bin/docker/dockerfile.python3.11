@@ -1,0 +1,52 @@
+FROM komais/centos_miniconda:v0.0.1    
+LABEL author="zhangyang"
+USER root
+RUN mamba install -y -c bioconda -c conda-forge python=3.11
+RUN pip3  install  fonttools -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  h5py -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  kiwisolver -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  matplotlib -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  munkres -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  mysql-connector -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  numexpr -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  numpy==1.24.3 -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  openpyxl -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  packaging -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  pandas==1.5.3 -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  paramiko -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  patsy -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  persistent -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  pexpect -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  Pillow -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  ply -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  ptyprocess -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  pycparser -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  PyNaCl -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  pyparsing -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  PyQt5-sip -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  pysam -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  python-dateutil -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  pytz -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  scipy -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  seaborn -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  sip -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  six -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  statannot -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  statsmodels -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  toml -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  tornado -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  zope.interface -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  bcrypt -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  biopython -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  Bottleneck -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  bx-python -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  cffi -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  colorama -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  contourpy -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  cryptography -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  cycler -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  Cython -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip3  install  drmaa -i https://pypi.tuna.tsinghua.edu.cn/simple
+USER test_user

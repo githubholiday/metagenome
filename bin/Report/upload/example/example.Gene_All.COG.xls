@@ -1,0 +1,7 @@
+Gene_ID	gene_1000000_Sample21|603_nt	gene_1000002_Sample31|537_nt
+COG_ID	COG0515	COG1714
+COG_Anno	Serine/threonine protein kinase	Predicted membrane protein/domain
+COG_Class	RTKL	S
+COG_Class_Anno	--	Function unknown
+Sample10	0.649482	0.000000
+Sample11	1.348945	0.000000

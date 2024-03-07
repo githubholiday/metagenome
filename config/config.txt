@@ -1,0 +1,100 @@
+#################### SOFTWARE #################################
+PERL=perl
+PYTHON3=python3
+Rscript=Rscript
+#R_PCA=/annoroad/data1/software/bin/miniconda/envs/TGS_16s_PCA/bin/Rscript
+cd-hit=cd-hit
+GZIP=gzip
+CONVERT=/usr/bin/convert
+FQTOOLS=/annoroad/data1/software/install/Miniconda/software/fqtools
+BWA=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/bwa
+faDeal=/annoroad/data1/software/install/tools/fastaDeal_v2.pl
+DIAMOND=/annoroad/data1/software/install/Miniconda-2023/bin/diamond
+HMMSCAN=/annoroad/data1/software/install/Miniconda-2023/envs/checkM/bin/hmmscan
+BLASTX=/annogene/datayw/share/software/install/ncbi-blast-2.2.28/bin/blastx
+SMRTLINK_BIN=/annoroad/data1/software/install/smrtlink_11.0/bin/smrtcmds/bin/
+BAM2FASTA=$(SMRTLINK_BIN)/bam2fasta
+PBMM2=$(SMRTLINK_BIN)/pbmm2
+PBINDEX=$(SMRTLINK_BIN)/pbindex
+BAM2FASTQ=/annoroad/data1/software/install/bam2fastq/bam2fastq-1.1.0/bam2fastq
+SAMTOOLS=$(SMRTLINK_BIN)/samtools
+SALMON=/annoroad/data1/software/install/salmon/salmon-1.6.0_linux_x86_64/bin/salmon
+MEGAHIT=/annoroad/data1/software/install/Miniconda-2023/envs/megahit/bin/megahit
+CSVTK=/annoroad/data1/software/bin/miniconda/envs/TGS_16s_pbtools/bin/csvtk
+QIIME2=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/qiime2-2023.2/bin/
+Kraken2=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/kraken2
+Braken=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/bracken
+ktImportText=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/ktImportText
+BAM_DEPTH=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/jgi_summarize_bam_contig_depths
+MetaBAT2=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/metabat2
+CheckM=/annoroad/data1/software/install/Miniconda-2023/envs/checkM/bin/checkm
+GTDBTK=/annoroad/data1/software/install/Miniconda-2023/envs/gtdbtk/bin/gtdbtk
+MGM=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/MetaGeneMark_linux_64/mgm/
+Seqkit=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/seqkit
+MMSEQ2=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/envs/micro/bin/mmseqs
+BLASTP=/annoroad/data1/software/install/Miniconda/Miniconda3-4.10.3-py3.9.5/bin/blastp
+LEFSE=/annoroad/data1/software/install/Miniconda-2023/envs/lefse/bin/
+lefse_conda=/annoroad/data1/software/install/Miniconda-2023/bin/activate lefse
+kobas=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/chengfangtu/install/kobas-3.0/scripts/annotate.py
+#k8s command
+ags_plus=/annogene/cloud/bioinfo/Public/HybridCloud/GIT/Software/public/ags_plus/current/bin_ags_plus/ags_plus
+#ags_plus=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/chengfangtu/Test/ags_plus/ags_plus_v5.5.3/bin_ags_plus/ags_plus
+TRANSPOSE=/annoroad/data1/software/install/transpose-2.0/src/transpose -t -l 10000x10000
+
+# report
+get_upload=/annoroad/data1/software/install/tools/generate_upload/get_upload.py
+report_py=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/Public/Pipeline/Stable/Public/Report/Report_local/current/Public_webreport//Report.py
+PYTHON3_Report=/annoroad/data1/software/bin/miniconda/envs/python3_base/bin/python3
+
+#
+#################### SOFTWARE PAREMETERS ###############################
+CANU_OPT=correctedErrorRate=0.025 corMinCoverage=0 corOutCoverage=all corMhapSensitivity=high corMaxEvidenceCoverageLocal=10 corMaxEvidenceCoverageGlobal=10 oeaMemory=32 redMemory=32 batMemory=32
+gmhmmp_parematers=-r -a -d -f G
+cd-hit_parematers=-c 0.95 -G 0 -aS 0.9 -d 0 -T 10 -M 10000
+NR_BLAST_PAREMATERS=-evalue 1e-5 -num_alignments 5 -num_threads 4 -outfmt "6 std stitle" 
+BLAST_PAREMATERS=-evalue 1e-5 -num_alignments 5 -num_threads 4 -outfmt "6 std stitle"
+Diamond_blastp=-e 1e-5 -k 50 -p 4
+concoct_parematers=-c 10000 -o 0 --merge_last
+PBMM2_PAREMATERS=--sort --sample FT5-1 -j 5 --preset CCS --log-level INFO
+CHECKM_PAREMATERS=-t 4 -x fa
+NR_DIOMAND_PAREMATERS=--outfmt 6 --sensitive --threads 5 --evalue 1e-5
+megahit_para=--k-min 35 --k-max 95 --k-step 6
+seqkit_seq_para=-m 100
+samtools_sort_para=-@ 4 -m 2G
+mmseq2_para=--min-seq-id 0.5 -c 0.8 --cov-mode 1 --threads 4
+
+#################### DB #######################################
+COGDB=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/COG/current/data/myva
+COGAnno=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/COG/current/data/cog_anno.txt
+UNIPROT=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/Uniport/current/data/uniprot_sprot.fasta
+SPORTDB=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/Uniport/current/data/sprot.anno
+SWISSPROT=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/Uniport/current/data/swissprot.fasta
+PHIDB=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/PHI/current/phi.fa
+DBCAN=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/dbCAN/current/dbCAN-fam-HMMs.txt
+ARDB=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/ARDB/current/ardb.pfasta
+EGGNOG=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/meta_genome_Database/Bacteria/bac.fa
+KOBAS=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/KoBas/current/ko.pep.fasta
+kobas_home=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/KoBas/current/
+blast_home=/annoroad/data1/software/install/Miniconda-2023/envs/kobas/bin/
+diamond_db=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/KoBas/current/kegg
+uniprot=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/Uniport/current/data/uniprot_sprot.fasta
+checkM_database=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/CheckM/current/checkm_data_2015_01_16
+gtdbtk_database=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/gtdbtk/current/release207_v2
+kraken2_db=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/meta_genome_Database/Kraken2_Database/kraken_db
+
+accession2taxid=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/NR/meta.prot.accession2taxid
+TaxInfo=/annogene/cloud/bioinfo/PROJECT/RD/Pipeline_test/Public/yuezhang/MetaGenomes/databases/NR/TaxonomyPickUp/TaxInfo.txt
+GO_DB=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/FTP/Database/GO/current/data/
+
+###################  species ref db ######################
+ref_db=/annoroad/data1/bioinfo/PROJECT/Commercial/Cooperation/Public/Database/GenomeDatabase/All_Species_database/DNA/
+
+
+################## lims db ########################
+sql_usr=raw
+sql_pwd=K8b#xx2^QcYs
+sql_host=rm-2zeb5kq11g3u77b5b.mysql.rds.aliyuncs.com
+sql_port=3306
+sql_db=lims3
+sql_tb=tb_pipeline_stat
+pipeline_name=NGS_Metagenome
