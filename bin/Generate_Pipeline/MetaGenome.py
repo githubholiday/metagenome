@@ -407,7 +407,7 @@ def main():
     parser.add_argument('-i', '--infofile', help='【可选】info文件', dest='infofile', required=False)
     parser.add_argument('-f', '--filterdir', help='【可选】质控下机数据，给到Filter_Result', dest='filterdir')
     parser.add_argument('-s', '--statfile', help='【可选】过滤中的Stat_Result.xls文件', dest='statfile')
-    parser.add_argument('-c', '--config', help='【可选】流程的config文件', dest='config', default=os.path.abspath('{0}/../config/config.txt'.format(bindir)))
+    parser.add_argument('-c', '--config', help='【可选】流程的config文件', dest='config', default=os.path.abspath('{0}/../../config/config.txt'.format(bindir)))
     parser.add_argument('--cuts', help='做KEGG和SwissProt数据库注释时，fa切割份数', dest='cuts',type=int, default=30)
     parser.add_argument('-ref', help='ref fa', dest='ref')
     parser.add_argument('-t','--type', help='【可选】流程类型，默认NGS_Metagenome', dest='type',default='NGS_Metagenome')
@@ -481,12 +481,6 @@ def main():
         my_log.info("没有提供参考基因组信息，则默认为无宿主")
         config.set("Para","Para_ref",'no_ref')
     #不进行差异比较组分析
-    '''
-    if Info.diff_analysis == "no":
-        all_job_config = '{0}/../config/job_config.txt'.format(bindir)
-    else:
-        all_job_config = '{0}/../config/diff.job_config.txt'.format(bindir)
-    '''
     all_job_config = '{0}/../config/job_config.txt'.format(bindir)
     my_log.info("该项目调用的job_config为: {0}".format( all_job_config ))
     job_config = '{0}/job_config.txt'.format(PreDir)
@@ -525,7 +519,7 @@ def main():
     config.write(open(analysis_config, "w"))
 
     # 生成流程
-#    qsub_shell = generate_pip(job_config, PreDir, ResultDir, bindir, sub_project_id, pipe_config_dict)
+    qsub_shell = generate_pip(job_config, PreDir, ResultDir, bindir, sub_project_id, pipe_config_dict)
     pip_qsub = generate_pipeline_qsub(args.python3, args.pipeline_generate,args.type,analysis_config,sub_project_id,outdir,all_job_config,args.pipelineDir)
     # 是否投递
     if args.run:
