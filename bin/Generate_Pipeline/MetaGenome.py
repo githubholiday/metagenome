@@ -204,11 +204,14 @@ class readinfo:
                 my_log.error('以下样本编号有重复,请修正' + " ".join(set(sample_id_dup)))
             sys.exit(1)
 
-        Dict = {}
-        Samples = {}
+        #每个组中的样品信息,key-group,value=[样本1，样本2]
+        group_Dict = {}
+
         for i, row in info_df.iterrows():
             for group in re.split(',|，', row['分组']):
-                Dict.setdefault(group, []).append(row['结题报告中样品名称'])
+                group_list = group.split('/')
+                for each_group in group_list:
+                    group_Dict.setdefault(group, []).append(row['结题报告中样品名称'])
 
         info_df[[ "样品名称", "样品编号", "样品描述", "结题报告中样品名称", "分组"]].to_csv(os.path.join(self.outdir, "sample.list"), sep='\t', header=False, index=None, encoding='utf-8')
 
@@ -218,14 +221,16 @@ class readinfo:
         self.config.set('Para', 'Para_samplelist', os.path.join(self.outdir, "sample.list"))
         self.config.set('Para', 'Para_cmp', os.path.join(self.outdir, "cmp.list"))
         self.config.set('Para', 'Para_sample', ",".join(info_df["结题报告中样品名称"].tolist()))
+        self.group_dict = {}
         for i,row in info_df[["结题报告中样品名称","分组"]].iterrows():
             sample_name,groups=row
 
             for group in groups.split('/'):
                 group=group.strip()
-                if group not in self.group_dict:self.group_dict[group]=[sample_name]
-                else:self.group_dict[group].append(sample_name)
-        self.Samples = Samples
+                if group not in self.group_dict:
+                    self.group_dict[group]= []
+                self.group_dict[group].append(sample_name)
+
         self.sample_info = info_df
         self.ref = ref
         self.sample_len = sample_len
@@ -252,15 +257,27 @@ class readinfo:
                 #row.append('yes')
                 cmp1 = row[0]
                 cmp2 = row[1]
-                if len( self.group_dict[cmp1]) <3 and len( self.group_dict[cmp2])<3 :
+                self.diff_analysis = "no"
+                if len( self.group_dict[cmp1]) >= 3 and len( self.group_dict[cmp2])>=3 :
+                    self.diff_analysis = "yes"
                     flag = 0
                 else :
-                    flag =1
-                self.diff_analysis = "no"
-                if flag == 1 :
-                    self.diff_analysis = "yes"
-                else:
                     my_log.warning("比较组中的重复不超过3个，所以不进行差异分析")
+                cmp_diff_dir = "{self.outdir}/../Analysis/Diff/{cmp1}_{cmp2}".format(self=self, cmp1=cmp1, cmp2=cmp2 )
+                my_run("mkdir -p {0}".format( cmp_diff_dir ))
+                sample_list_file = "{0}/sample.list".format( cmp_diff_dir )
+                cmp_list_file = "{0}/cmp.list".format(cmp_diff_dir)
+                with open( cmp_list_file, 'w') as cmp_output:
+                    cmp_output.write(cmp1+'\t'+cmp2+'\n')
+                with open( sample_list_file, 'w') as sample_output:
+                    sample_output.write("Sample\tGroup\n")
+                    for cmp1_s in self.group_dict[cmp1]:
+                        value_list = [cmp1_s, cmp1]
+                        sample_output.write('\t'.join(value_list)+'\n')
+                    for cmp2_s in self.group_dict[cmp2]:
+                        value_list = [cmp2_s, cmp2]
+                        sample_output.write('\t'.join(value_list)+'\n')
+
                 cmp_info = [ cmp1, cmp2, self.diff_analysis]
                 self.config.set("cmp",'\t'.join(cmp_info))
         self.config.set("Para",'Para_Diff',self.diff_analysis)
@@ -282,14 +299,8 @@ class readinfo:
         cmp3_df = df[["组合名","分组"]].iloc[0:cmp_ie+1,:].dropna()
         flag = 1
         pipe_cmp3 = os.path.join(self.outdir,"cmp3.txt")
-        #if cmp3_df.empty:
-        #    print(cmp3_df)
-        #else:
-        #    print("your data is not empty")
         cmp3_df.to_csv(pipe_cmp3,sep='\t', header=None,index=None,encoding="utf-8")
         self.config.set("Para",'Para_cmp3File',pipe_cmp3)
-
-
 
 def get_clean_dir(filterdir):
     if not os.path.exists( filterdir ) :
@@ -416,15 +427,19 @@ def main():
     prepare_dir = '{0}/prepare'.format( outdir )
     analysis_config = '{0}/config.ini'.format( prepare_dir )
     args.config = os.path.abspath(args.config)
-    ## 
+    ##如果提供了过滤路径或者统计文件，使用提供的 
     if args.filterdir :
         filter_dir = args.filterdir
     stat_file = '{0}/STAT_result.xls'.format( filter_dir)
+
     if args.statfile :
         stat_file = args.statfile
+
     if not os.path.exists( stat_file ):
         my_log.error("{0} 文件不存在".format( stat_file))
-    #信搜判断
+    ## 
+        
+    #信搜判断，以_info.xls结尾
     info_file_list = glob.glob('{0}/*_info.xls*'.format( info_dir ))
     if len(info_file_list) == 1 :
         info_file = info_file_list[0]
