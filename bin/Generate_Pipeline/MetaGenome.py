@@ -517,9 +517,9 @@ def main():
         sys.exit(1)
     # 生成config.ini
     config.write(open(analysis_config, "w"))
-
+    print(analysis_config)
     # 生成流程
-    qsub_shell = generate_pip(job_config, PreDir, ResultDir, bindir, sub_project_id, pipe_config_dict)
+    #qsub_shell = generate_pip(job_config, PreDir, ResultDir, bindir, sub_project_id, pipe_config_dict)
     pip_qsub = generate_pipeline_qsub(args.python3, args.pipeline_generate,args.type,analysis_config,sub_project_id,outdir,all_job_config,args.pipelineDir)
     # 是否投递
     if args.run:

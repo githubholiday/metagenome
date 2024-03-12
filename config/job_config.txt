@@ -1,1 +1,736 @@
-job_config.txt_v3
+[Job Start]
+Name	QC_Stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	1G
+CPU	N
+Order	1
+Command	make -f BIN/Host_Alignment/makefile filter_stat=Para_filter_stat info=Para_samplelist outdir=OUTDIR/QC QC
+[Job End]
+
+[Job Start]
+Name	Host_RM
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	15
+Major	T
+Memory	40G
+CPU	N
+Order	1
+Command	make -f BIN/Host_Alignment/makefile ref=Para_ref sample=$(Sample)[0] outdir=OUTDIR/Host/$(Sample)[0] R1=Para_cleandir/$(Sample)[0]_R1.fq.gz R2=Para_cleandir/$(Sample)[0]_R2.fq.gz Host_RM
+[Job End]
+
+[Job Start]
+Name	Host_Stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	1
+Depend	Host_RM
+Command	make -f BIN/Host_Alignment/makefile ref=Para_ref infile=OUTDIR/Host/*/*.map.stat.xls outdir=OUTDIR/Host/ Host_Stat
+[Job End]
+
+[Job Start]
+Name	Assemble
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	12
+Major	T
+Memory	40G
+CPU	10
+Order	2
+Depend	Host_RM
+Command	make -f BIN/Assemble/makefile outdir=OUTDIR/assemble/$(Sample)[0] R1=OUTDIR/Host/$(Sample)[0]/$(Sample)[0]_umap_1.fq.gz R2=OUTDIR/Host/$(Sample)[0]/$(Sample)[0]_umap_2.fq.gz AssembleNGS
+[Job End]
+
+[Job Start]
+Name	AssembleStat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	3G
+CPU	N
+Order	2
+Depend	Assemble
+Command	make -f BIN/Assemble/makefile contig_fa=OUTDIR/assemble/$(Sample)[0]/final.contigs.fa  outdir=OUTDIR/assemble/$(Sample)[0] sample=$(Sample)[0] Assemble_Stat
+[Job End]
+
+[Job Start]
+Name	Assemble_StatAll
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	1G
+CPU	N
+Order	2
+Depend	AssembleStat
+Command	make -f BIN/Assemble/makefile input=OUTDIR/assemble/*/*assembly.n50.xls output=OUTDIR/assemble/Assembly_stat.xls StatAll
+[Job End]
+
+[Job Start]
+Name	QC_Assemble_StatAll
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	False
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	2
+Depend	Assemble_StatAll
+Command	make -f BIN/QC/mk_QC infile=Para_samplelist n=4 outfile=OUTDIR/QC/sample.list Pre
+make -f BIN/QC/mk_QC indir=OUTDIR qc_content=N50bp,N90bp,Contig sample_list=OUTDIR/QC/sample.list outprefix=OUTDIR/QC/Assemble-StatAll  templete=BIN/QC/template.xls project=Para_Project QC
+[Job End]
+
+[Job Start]
+Name	Kraken
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	70
+Major	T
+Memory	200G
+CPU	N
+Order	2
+Depend	Host_RM
+Command	make -f BIN/Reads_Taxonomy/makefile outdir=OUTDIR/Kraken/$(Sample)[0] sample=$(Sample)[0] R1=OUTDIR/Host/$(Sample)[0]/$(Sample)[0]_umap_1.fq.gz R2=OUTDIR/Host/$(Sample)[0]/$(Sample)[0]_umap_2.fq.gz ref=Para_ref kraken_bracken krona
+[Job End]
+
+[Job Start]
+Name	Kraken_Stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	3G
+CPU	N
+Order	2
+Depend	Kraken
+Command	make -f BIN/Reads_Taxonomy/makefile infile=OUTDIR/Kraken/*/*.map.stat.xls outdir=OUTDIR/Kraken/ stat
+make -f BIN/Reads_Taxonomy/makefile outdir=OUTDIR/Kraken_count indir=OUTDIR/Kraken/ top=20 groupFile=Para_cmp Draw_rich_heat
+[Job End]
+
+[Job Start]
+Name	Diversity_format
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	3
+Depend	Kraken
+Command	make -f BIN/Diversity/makefile outdir=OUTDIR/Kraken indir=OUTDIR/Kraken/ qiime_format
+[Job End]
+
+[Job Start]
+Name	Alpha
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	2
+Major	T
+Memory	10G
+CPU	N
+Order	3
+Depend	Diversity_format
+Command	make -f BIN/Diversity/makefile outdir=OUTDIR/Diversity/Alpha_vegan merge_file=OUTDIR/Kraken/merge.qiime.xls cmp2_file=Para_cmp2File cmp3_file=Para_cmp3File group_file=Para_cmp Alpha_vegan 
+[Job End]
+
+[Job Start]
+Name	Beta
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	3
+Depend	Diversity_format
+Command	make -f BIN/beta/mk_beta outdir=OUTDIR/Diversity/Beta_qiime qza_file=OUTDIR/Kraken/all_qiime.qza method=braycurtis Beta_qiime
+make -f BIN/beta/mk_beta outdir=OUTDIR/Diversity/Beta_qiime/NMDS infile=OUTDIR/Kraken/merge.qiime.xls cmp=Para_cmp method=bray prefix=All NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/Diversity/Beta_qiime/PCA infile=OUTDIR/Kraken/merge.qiime.xls cmp=Para_cmp prefix=All PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/Diversity/Beta_qiime/PCoA infile=OUTDIR/Kraken/merge.qiime.xls cmp=Para_cmp method=bray prefix=All PCoA
+[Job End]
+
+[Job Start]
+Name	CompareAnalysis
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	3
+Depend	Diversity_format
+Command	set -e
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/Kraken/merge.qiime.xls groupFile=Para_cmp outdir=OUTDIR/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/Kraken/merge.qiime.xls groupFile=Para_cmp outdir=OUTDIR/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/CompareAnalysis combine
+[Job End]
+
+[Job Start]
+Name	DE
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	4
+Depend	Diversity_format
+Command	set -e
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/Kraken/merge.qiime.xls groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/DE/ANOVA DE_ANOVA 
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/Kraken/merge.qiime.xls groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	DE_LEfSe
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	2
+Major	T
+Memory	10G
+CPU	N
+Order	4
+Depend	Diversity_format
+Command	set -e
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/Kraken/merge.qiime.xls groupFile=Para_cmp outdir=OUTDIR/DE/LEfSe diff_on=$(cmp)[2] cmp1=$(cmp)[0] cmp2=$(cmp)[1] LDA=2 DE_LEfSe
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/Kraken/merge.qiime.xls groupFile=Para_cmp outdir=OUTDIR/DE/LEfSe diff_on=$(cmp)[2] cmp1=$(cmp)[0] cmp2=$(cmp)[1] LDA=4 DE_LEfSe
+[Job End]
+
+[Job Start]
+Name	MetaGeneMark
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	5
+Depend	Assemble
+Command	make -f BIN/GenePrediction/makefile outdir=OUTDIR/ORF/$(Sample)[0] assemble_fa=OUTDIR/assemble/$(Sample)[0]/final.contigs.fa protein_fasta=OUTDIR/ORF/$(Sample)[0]/$(Sample)[0].protein.fasta nucleotide_fasta=OUTDIR/ORF/$(Sample)[0]/$(Sample)[0].nucleotide.fasta out_gff=OUTDIR/ORF/$(Sample)[0]/$(Sample)[0].gff user=Para_user sample=$(Sample)[0] Gene
+[Job End]
+
+[Job Start]
+Name	GeneFilter
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	1G
+CPU	N
+Order	5
+Depend	MetaGeneMark
+Command	make -f BIN/GenePrediction/makefile outdir=OUTDIR/ORF/$(Sample)[0] nucleotide_fasta=OUTDIR/ORF/$(Sample)[0]/$(Sample)[0].nucleotide.fasta gene_min_len=Para_gene_min_len sample=$(Sample)[0] GeneFilter
+[Job End]
+
+[Job Start]
+Name	MMSEQS2
+Queue	"super.q"
+Qsub	True
+Thread	10
+Major	T
+Memory	100G
+CPU	N
+Order	5
+Depend	GeneFilter
+Command	make -f BIN/GenePrediction/makefile indir=OUTDIR/ORF outdir=OUTDIR/GenePredicion/non-redundant_gene prefix=non-redundant_gene MMSEQS2
+[Job End]
+
+[Job Start]
+Name	Salmon_index
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	5
+Major	T
+Memory	30G
+CPU	N
+Order	5
+Depend	MMSEQS2
+Command	set -e
+ln -sf OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.nucleotide_rep_seq.fasta OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.nucl.fasta
+make -f BIN/GeneQuant/makefile infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.nucl.fasta index_prefix=OUTDIR/GenePredicion/non-redundant_gene/salmon_index salmon_index
+[Job End]
+
+[Job Start]
+Name	GeneStat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	2
+Major	T
+Memory	15G
+CPU	N
+Order	5
+Depend	Salmon_index
+Command	make -f BIN/GenePrediction/makefile input=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.nucl.fasta outdir=OUTDIR/GenePredicion/non-redundant_gene/ out_pdf=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.pdf out_prefix=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene gene_stat
+make -f BIN/GenePrediction/makefile input=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.nucl.fasta output=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta cds2aa
+make -f BIN/GenePrediction/makefile input=OUTDIR/ORF/*/*orf_stat.xls output=OUTDIR/ORF/ORF_stat.xls stat_orf
+[Job End]
+
+[Job Start]
+Name	GeneQuant
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	4
+Major	T
+Memory	20G
+CPU	20
+Order	5
+Depend	GeneStat
+Command	make -f BIN/GeneQuant/makefile index_prefix=OUTDIR/GenePredicion/non-redundant_gene/salmon_index R1=Para_cleandir/$(Sample)[0]_R1.fq.gz R2=Para_cleandir/$(Sample)[0]_R2.fq.gz sample=$(Sample)[0] outdir=OUTDIR/Gene_Quant/$(Sample)[0]/ salmon_gene
+[Job End]
+
+[Job Start]
+Name	GeneQuant_Stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	5
+Major	T
+Memory	80G
+CPU	N
+Order	5
+Depend	GeneQuant
+Command	make -f BIN/GeneQuant/makefile count=OUTDIR/GenePredicion/*/*count.txt cmp=Para_cmp outdir=OUTDIR/Gene_Quant/ TPM=OUTDIR/Gene_Quant/*/*TPM.xls cor
+[Job End]
+
+
+[Job Start]
+Name	EggNOG
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	18G
+CPU	N
+Order	6
+Depend	
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/EggNOG/ infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta TPM=OUTDIR/Gene_Quant/TPM.all.xls EggNOG 
+[Job End]
+
+[Job Start]
+Name	PHI
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	20G
+CPU	N
+Order	6
+Depend	
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/PHI/ infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta TPM=OUTDIR/Gene_Quant/TPM.all.xls PHI
+[Job End]
+
+[Job Start]
+Name	COG
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	6
+Depend	
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/COG/ infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta TPM=OUTDIR/Gene_Quant/TPM.all.xls COG_Diamond
+[Job End]
+
+[Job Start]
+Name	ARDB
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	18G
+CPU	N
+Order	6
+Depend	
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/ARDB/ infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta TPM=OUTDIR/Gene_Quant/TPM.all.xls ARDB
+[Job End]
+
+[Job Start]
+Name	CAZy
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	18G
+CPU	N
+Order	6
+Depend	
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/CAZy infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta TPM=OUTDIR/Gene_Quant/TPM.all.xls CAZy
+[Job End]
+
+[Job Start]
+Name	GO
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	6
+Depend	
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/GO/ infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta TPM=OUTDIR/Gene_Quant/TPM.all.xls GO_Diamond
+[Job End]
+
+[Job Start]
+Name	CARD
+Thread	4
+Memory	20G
+Queue	"nassci.q,sci.q,auto.q,mid.q"
+CPU	N
+Major	T
+Order	6
+Qsub	True
+Command	make -f BIN/annotation/mk_annotation infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta outdir=OUTDIR/annotation/CARD TPM=OUTDIR/Gene_Quant/TPM.all.xls CARD_Diamond
+[Job End]
+
+[Job Start]
+Name	BacMet
+Thread	4
+Memory	20G
+Queue	"nassci.q,sci.q,auto.q,mid.q"
+CPU	N
+Major	T
+Order	6
+Qsub	True
+Command	make -f BIN/annotation/mk_annotation infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta outdir=OUTDIR/annotation/BacMet TPM=OUTDIR/Gene_Quant/TPM.all.xls BacMet_Diamond
+[Job End]
+
+[Job Start]
+Name	VFDB
+Thread	4
+Memory	20G
+Queue	"nassci.q,sci.q,auto.q,mid.q"
+CPU	N
+Major	T
+Order	6
+Qsub	True
+Command	make -f BIN/annotation/mk_annotation infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta outdir=OUTDIR/annotation/VFDB TPM=OUTDIR/Gene_Quant/TPM.all.xls VFDB-Diamond
+[Job End]
+
+[Job Start]
+Name	Fa_Split
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	6
+Depend	GeneStat
+Command	make -f BIN/annotation/mk_annotation infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.nucl.fasta outdir=OUTDIR/annotation/fa_split/ cutf=Para_cutf Fa_Deal
+make -f BIN/annotation/mk_annotation infa=OUTDIR/GenePredicion/non-redundant_gene/non-redundant_gene.final.pro.fasta outdir=OUTDIR/annotation/pro_fa_split/ cutf=Para_cutf Fa_Deal
+[Job End]
+
+[Job Start]
+Name	KEGG
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	30G
+CPU	10
+Order	6
+Depend	Fa_Split
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/KEGG/diamond_result/ infa=OUTDIR/annotation/fa_split/non-redundant_gene.final.nucl.fasta.cut/non-redundant_gene.final.nucl.fasta.$(Cuts)[0] cuts=$(Cuts)[0] KEGG_Diamond
+make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/KEGG/kobas_anno/ indir=OUTDIR/annotation/KEGG/diamond_result/ cuts=$(Cuts)[0] KEGG_KOBAS_Anno
+[Job End]
+
+[Job Start]
+Name	KEGG_Combine
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	6
+Depend	KEGG
+Command	make -f BIN/annotation/mk_annotation input=OUTDIR/annotation/KEGG/kobas_anno/*out outdir=OUTDIR/annotation/KEGG/ TPM=OUTDIR/Gene_Quant/TPM.all.xls KEGG_Combine
+[Job End]
+
+[Job Start]
+Name	SWISSPROT
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	18G
+CPU	10
+Order	6
+Depend	Fa_Split
+Command	make -f BIN/annotation/mk_annotation outdir=OUTDIR/annotation/SWISSPROT/blast_result infa=OUTDIR/annotation/pro_fa_split/non-redundant_gene.final.pro.fasta.cut/non-redundant_gene.final.pro.fasta.$(Cuts)[0] cuts=$(Cuts)[0] SWISSPROT
+[Job End]
+
+[Job Start]
+Name	SWISSPROT_Combine
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	6
+Depend	SWISSPROT
+Command	make -f BIN/annotation/mk_annotation indir=OUTDIR/annotation/SWISSPROT/blast_result outdir=OUTDIR/annotation/SWISSPROT/ TPM=OUTDIR/Gene_Quant/TPM.all.xls SWISSPROT_Combine
+[Job End]
+
+[Job Start]
+Name	KEGG_Stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	20G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/KEGG/beta/NMDS infile=OUTDIR/annotation/KEGG/KEGG.Pathway.in cmp=Para_cmp method=bray prefix=KEGG NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/KEGG/beta/PCA infile=OUTDIR/annotation/KEGG/KEGG.Pathway.in cmp=Para_cmp prefix=KEGG PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/KEGG/beta/PCoA infile=OUTDIR/annotation/KEGG/KEGG.Pathway.in cmp=Para_cmp method=bray prefix=KEGG PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/KEGG/KEGG.Pathway.in groupFile=Para_cmp outdir=OUTDIR/annotation/KEGG/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/KEGG/KEGG.Pathway.in groupFile=Para_cmp outdir=OUTDIR/annotation/KEGG/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/KEGG/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/KEGG/KEGG.Pathway.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/KEGG/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/KEGG/KEGG.Pathway.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/KEGG/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	SWISSPROT_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	3
+Major	T
+Memory	20G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/SWISSPROT/beta/NMDS infile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in cmp=Para_cmp method=bray prefix=SWISSPROT NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/SWISSPROT/beta/PCA infile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in cmp=Para_cmp prefix=SWISSPROT PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/SWISSPROT/beta/PCoA infile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in cmp=Para_cmp method=bray prefix=SWISSPROT PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/SWISSPROT/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/SWISSPROT/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/SWISSPROT/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/SWISSPROT/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/SWISSPROT/SWISSPROT.SWISSPROT_ID.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/SWISSPROT/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	EggNOG_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	2
+Major	T
+Memory	10G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/EggNOG/beta/NMDS infile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in cmp=Para_cmp method=bray prefix=EggNOG NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/EggNOG/beta/PCA infile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in cmp=Para_cmp prefix=EggNOG PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/EggNOG/beta/PCoA infile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in cmp=Para_cmp method=bray prefix=EggNOG PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/EggNOG/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/EggNOG/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/EggNOG/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/EggNOG/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/EggNOG/EggNOG.EggNOG_ID.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/EggNOG/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	PHI_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/PHI/beta/NMDS infile=OUTDIR/annotation/PHI/PHI.PHI_ID.in cmp=Para_cmp method=bray prefix=PHI NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/PHI/beta/PCA infile=OUTDIR/annotation/PHI/PHI.PHI_ID.in cmp=Para_cmp prefix=PHI PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/PHI/beta/PCoA infile=OUTDIR/annotation/PHI/PHI.PHI_ID.in cmp=Para_cmp method=bray prefix=PHI PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/PHI/PHI.PHI_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/PHI/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/PHI/PHI.PHI_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/PHI/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/PHI/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/PHI/PHI.PHI_ID.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/PHI/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/PHI/PHI.PHI_ID.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/PHI/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	COG_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/COG/beta/NMDS infile=OUTDIR/annotation/COG/COG.COG_Class.in cmp=Para_cmp method=bray prefix=COG NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/COG/beta/PCA infile=OUTDIR/annotation/COG/COG.COG_Class.in cmp=Para_cmp prefix=COG PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/COG/beta/PCoA infile=OUTDIR/annotation/COG/COG.COG_Class.in cmp=Para_cmp method=bray prefix=COG PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/COG/COG.COG_Class.in groupFile=Para_cmp outdir=OUTDIR/annotation/COG/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/COG/COG.COG_Class.in groupFile=Para_cmp outdir=OUTDIR/annotation/COG/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/COG/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/COG/COG.COG_Class.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/COG/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/COG/COG.COG_Class.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/COG/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	ARDB-stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/ARDB/beta/NMDS infile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in cmp=Para_cmp method=bray prefix=ARDB NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/ARDB/beta/PCA infile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in cmp=Para_cmp prefix=ARDB PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/ARDB/beta/PCoA infile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in cmp=Para_cmp method=bray prefix=ARDB PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in groupFile=Para_cmp outdir=OUTDIR/annotation/ARDB/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in groupFile=Para_cmp outdir=OUTDIR/annotation/ARDB/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/ARDB/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/ARDB/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/ARDB/ARDB.ARDB-type.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/ARDB/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	CAZy_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	2G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/CAZy/beta/NMDS infile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in cmp=Para_cmp method=bray prefix=CAZy NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/CAZy/beta/PCA infile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in cmp=Para_cmp prefix=CAZy PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/CAZy/beta/PCoA infile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in cmp=Para_cmp method=bray prefix=CAZy PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in groupFile=Para_cmp outdir=OUTDIR/annotation/CAZy/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in groupFile=Para_cmp outdir=OUTDIR/annotation/CAZy/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/CAZy/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/CAZy/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/CAZy/CAZy.CAZy_class.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/CAZy/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	GO_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	7
+Depend	
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/GO/beta/NMDS infile=OUTDIR/annotation/GO/GO.Term_name.in cmp=Para_cmp method=bray prefix=GO NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/GO/beta/PCA infile=OUTDIR/annotation/GO/GO.Term_name.in cmp=Para_cmp prefix=GO PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/GO/beta/PCoA infile=OUTDIR/annotation/GO/GO.Term_name.in cmp=Para_cmp method=bray prefix=GO PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/GO/GO.Term_name.in groupFile=Para_cmp outdir=OUTDIR/annotation/GO/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/GO/GO.Term_name.in groupFile=Para_cmp outdir=OUTDIR/annotation/GO/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/GO/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/GO/GO.Term_name.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/GO/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/GO/GO.Term_name.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/GO/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	CARD_stat
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	5G
+CPU	N
+Order	7
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/CARD/beta/NMDS infile=OUTDIR/annotation/CARD/CARD.ARO_name.in cmp=Para_cmp method=bray prefix=CARD NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/CARD/beta/PCA infile=OUTDIR/annotation/CARD/CARD.ARO_name.in cmp=Para_cmp prefix=CARD PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/CARD/beta/PCoA infile=OUTDIR/annotation/CARD/CARD.ARO_name.in cmp=Para_cmp method=bray prefix=CARD PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/CARD/CARD.ARO_name.in groupFile=Para_cmp outdir=OUTDIR/annotation/CARD/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/CARD/CARD.ARO_name.in groupFile=Para_cmp outdir=OUTDIR/annotation/CARD/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/CARD/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/CARD/CARD.ARO_name.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/CARD/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/CARD/CARD.ARO_name.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/CARD/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	BacMet_stat
+Memory	5G
+Queue	"nassci.q,sci.q,auto.q,mid.q"
+CPU	N
+Major	T
+Order	7
+Qsub	True
+Depend	BacMet
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/BacMet/beta/NMDS infile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in cmp=Para_cmp method=bray prefix=BacMet NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/BacMet/beta/PCA infile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in cmp=Para_cmp prefix=BacMet PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/BacMet/beta/PCoA infile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in cmp=Para_cmp method=bray prefix=BacMet PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/BacMet/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in groupFile=Para_cmp outdir=OUTDIR/annotation/BacMet/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/BacMet/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/BacMet/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/BacMet/BacMet.BacMet_ID.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/BacMet/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	VFDB-stat
+Memory	5G
+Queue	"nassci.q,sci.q,auto.q,mid.q"
+CPU	N
+Major	T
+Order	7
+Qsub	True
+Depend	VFDB
+Command	set -e
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/VFDB/beta/NMDS infile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in cmp=Para_cmp method=bray prefix=VFDB NMDS
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/VFDB/beta/PCA infile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in cmp=Para_cmp prefix=VFDB PCA
+make -f BIN/beta/mk_beta outdir=OUTDIR/annotation/VFDB/beta/PCoA infile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in cmp=Para_cmp method=bray prefix=VFDB PCoA
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in groupFile=Para_cmp outdir=OUTDIR/annotation/VFDB/CompareAnalysis cmpFile=Para_cmp2File type=2 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis qiimeFile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in groupFile=Para_cmp outdir=OUTDIR/annotation/VFDB/CompareAnalysis cmpFile=Para_cmp3File type=3 anosim adonis MRPP
+make -f BIN/CompareAnalysis/mk_CompareAnalysis outdir=OUTDIR/annotation/VFDB/CompareAnalysis combine
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in groupFile=Para_cmp cmpFile=Para_cmp3File outdir=OUTDIR/annotation/VFDB/DE/ANOVA DE_ANOVA
+make -f BIN/DE/mk_DE qiimeFile=OUTDIR/annotation/VFDB/VFDB.VF_category_level1.in groupFile=Para_cmp cmpFile=Para_cmp2File outdir=OUTDIR/annotation/VFDB/DE/wilcox DE_wilcox
+[Job End]
+
+[Job Start]
+Name	Report
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	1G
+CPU	N
+Order	8
+Depend	
+Command	make -f BIN/Report/makefile outdir=OUTDIR/Report config=Para_analysis_config indir=OUTDIR upload=OUTDIR/Report/upload samplelist=Para_samplelist platform=Para_platform Get_Upload Report
+[Job End]
+
+[Job Start]
+Name	Record
+Queue	"sci.q,nassci.q,mid.q"
+Qsub	True
+Thread	1
+Major	T
+Memory	1G
+CPU	N
+Order	8
+Depend	
+Command	make -f BIN/Report/makefile outdir=OUTDIR/Report analysis_dir=OUTDIR project_id=Para_Project config=BIN/Report/script/config.ini pipeline_record
+[Job End]
+
