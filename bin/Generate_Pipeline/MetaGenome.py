@@ -481,7 +481,7 @@ def main():
         my_log.info("没有提供参考基因组信息，则默认为无宿主")
         config.set("Para","Para_ref",'no_ref')
     #不进行差异比较组分析
-    all_job_config = '{0}/../config/job_config.txt'.format(bindir)
+    all_job_config = '{0}/../../config/job_config.txt'.format(bindir)
     my_log.info("该项目调用的job_config为: {0}".format( all_job_config ))
     job_config = '{0}/job_config.txt'.format(PreDir)
     cp_cmd = 'cp {0} {1}'.format(all_job_config, job_config )
