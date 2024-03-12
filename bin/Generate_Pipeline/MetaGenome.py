@@ -382,7 +382,7 @@ class generate_pipeline_qsub:
         self.pipeline_config_file = pipeline_config_file
         self.pipelineDir = pipelineDir
         self.outdir = outdir
-        self.generate_pipeline()
+        #self.generate_pipeline()
 
     def generate_pipeline(self):
         work_shell = os.path.join(self.outdir,'{0}_{1}_qsub_sge.sh'.format(self.pipe_type,self.sub_project_id))
@@ -521,9 +521,10 @@ def main():
     # 生成流程
     #qsub_shell = generate_pip(job_config, PreDir, ResultDir, bindir, sub_project_id, pipe_config_dict)
     pip_qsub = generate_pipeline_qsub(args.python3, args.pipeline_generate,args.type,analysis_config,sub_project_id,outdir,all_job_config,args.pipelineDir)
+    pip_qsub.generate_pipeline()
     # 是否投递
     if args.run:
-        cmd = ('sh {0}'.format(qsub_shell))
+        cmd = ('sh {0}'.format(pip_qsub.work_shell))
         os.system(cmd)
 
 
